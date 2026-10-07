@@ -1,0 +1,123 @@
+﻿===== FILE: app\replacement\request\page.tsx =====
+
+export default function ReplacementRequestPage() {
+  return (
+    <main className="min-h-screen bg-gray-50 px-6 py-10">
+      <div className="mx-auto max-w-4xl">
+
+        <header>
+          <p className="text-sm font-medium text-gray-500">
+            Support / Replacement
+          </p>
+
+          <h1 className="mt-2 text-3xl font-bold text-gray-900">
+            Replacement Request
+          </h1>
+
+          <p className="mt-2 text-gray-600">
+            Provide the required information to submit your replacement
+            request.
+          </p>
+        </header>
+
+        <section className="mt-8 rounded-xl border bg-white p-6">
+          <h2 className="text-lg font-semibold text-gray-900">
+            Selected Product
+          </h2>
+
+          <div className="mt-4 rounded-lg bg-gray-50 p-5">
+            <p className="font-medium text-gray-900">
+              iPhone 13 LCD OLED
+            </p>
+
+            <p className="mt-1 text-sm text-gray-500">
+              Order #UMP-1001
+            </p>
+
+            <p className="mt-1 text-sm text-green-700">
+              Replacement eligibility: Eligible
+            </p>
+          </div>
+        </section>
+
+        <section className="mt-6 rounded-xl border bg-white p-6">
+          <h2 className="text-lg font-semibold text-gray-900">
+            Replacement Reason
+          </h2>
+
+          <select className="mt-4 w-full rounded-lg border px-4 py-3 text-sm">
+            <option>Select a reason</option>
+            <option>Product is defective</option>
+            <option>Product arrived damaged</option>
+            <option>Product is not working</option>
+            <option>Wrong product received</option>
+            <option>Other</option>
+          </select>
+        </section>
+
+        <section className="mt-6 rounded-xl border bg-white p-6">
+          <h2 className="text-lg font-semibold text-gray-900">
+            Description
+          </h2>
+
+          <textarea
+            rows={6}
+            placeholder="Describe the issue with the product..."
+            className="mt-4 w-full rounded-lg border px-4 py-3 text-sm outline-none"
+          />
+
+          <p className="mt-2 text-xs text-gray-500">
+            Please provide enough detail to help our team understand the
+            problem.
+          </p>
+        </section>
+
+        <section className="mt-6 rounded-xl border bg-white p-6">
+          <h2 className="text-lg font-semibold text-gray-900">
+            Evidence
+          </h2>
+
+          <p className="mt-2 text-sm text-gray-500">
+            Upload photos or videos showing the issue with the product.
+          </p>
+
+          <div className="mt-5 rounded-lg border-2 border-dashed border-gray-300 p-8 text-center">
+            <p className="text-sm font-medium text-gray-700">
+              Upload Photo / Video
+            </p>
+
+            <p className="mt-1 text-xs text-gray-500">
+              Accepted formats and maximum file size will be shown here.
+            </p>
+
+            <button
+              type="button"
+              className="mt-4 rounded-lg border px-5 py-3 text-sm font-medium text-gray-900"
+            >
+              Choose Files
+            </button>
+          </div>
+        </section>
+
+        <section className="mt-6 rounded-xl border bg-white p-6">
+          <h2 className="text-lg font-semibold text-gray-900">
+            Review & Submit
+          </h2>
+
+          <p className="mt-2 text-sm leading-6 text-gray-500">
+            Please review your replacement reason, description, and evidence
+            before submitting the request.
+          </p>
+
+          <button
+            type="button"
+            className="mt-6 w-full rounded-lg bg-black px-6 py-3 text-sm font-medium text-white"
+          >
+            Submit Replacement Request
+          </button>
+        </section>
+
+      </div>
+    </main>
+  )
+}

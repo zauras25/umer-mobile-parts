@@ -1,0 +1,153 @@
+﻿export default function RetailerDashboardPage() {
+  return (
+    <main className="min-h-screen bg-gray-50 px-6 py-10">
+      <div className="mx-auto max-w-6xl">
+
+        <header>
+          <p className="text-sm font-medium text-green-600">
+            Approved Retailer
+          </p>
+
+          <h1 className="mt-2 text-3xl font-bold text-gray-900">
+            Retailer Dashboard
+          </h1>
+
+          <p className="mt-2 text-gray-600">
+            Manage your wholesale shopping, repeat purchases and business
+            account features.
+          </p>
+        </header>
+
+        <section className="mt-8 rounded-xl border bg-white p-6">
+          <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+            <div>
+              <h2 className="text-xl font-semibold text-gray-900">
+                Wholesale Pricing
+              </h2>
+
+              <p className="mt-1 text-sm text-gray-500">
+                Your retailer pricing is active on eligible products.
+              </p>
+            </div>
+
+            <span className="rounded-full bg-green-100 px-4 py-2 text-sm font-medium text-green-700">
+              Active
+            </span>
+          </div>
+        </section>
+
+        <section className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+
+          <div className="rounded-xl border bg-white p-6">
+            <h2 className="font-semibold text-gray-900">
+              Wholesale Pricing
+            </h2>
+            <p className="mt-2 text-sm text-gray-500">
+              View your applicable wholesale prices and discounts.
+            </p>
+            <button
+              type="button"
+              className="mt-5 text-sm font-medium text-blue-600"
+            >
+              View Pricing
+            </button>
+          </div>
+
+          <div className="rounded-xl border bg-white p-6">
+            <h2 className="font-semibold text-gray-900">
+              Buy Again
+            </h2>
+            <p className="mt-2 text-sm text-gray-500">
+              Quickly reorder products from previous purchases.
+            </p>
+            <button
+              type="button"
+              className="mt-5 text-sm font-medium text-blue-600"
+            >
+              View Previous Orders
+            </button>
+          </div>
+
+          <div className="rounded-xl border bg-white p-6">
+            <h2 className="font-semibold text-gray-900">
+              Frequently Purchased
+            </h2>
+            <p className="mt-2 text-sm text-gray-500">
+              Access products you regularly purchase.
+            </p>
+            <button
+              type="button"
+              className="mt-5 text-sm font-medium text-blue-600"
+            >
+              View Products
+            </button>
+          </div>
+
+          <div className="rounded-xl border bg-white p-6">
+            <h2 className="font-semibold text-gray-900">
+              Business Details
+            </h2>
+            <p className="mt-2 text-sm text-gray-500">
+              Manage your retailer and business information.
+            </p>
+            <button
+              type="button"
+              className="mt-5 text-sm font-medium text-blue-600"
+            >
+              Manage Business
+            </button>
+          </div>
+
+          <div className="rounded-xl border bg-white p-6">
+            <h2 className="font-semibold text-gray-900">
+              Orders
+            </h2>
+            <p className="mt-2 text-sm text-gray-500">
+              View and track your business orders.
+            </p>
+            <button
+              type="button"
+              className="mt-5 text-sm font-medium text-blue-600"
+            >
+              View Orders
+            </button>
+          </div>
+
+          <div className="rounded-xl border bg-white p-6">
+            <h2 className="font-semibold text-gray-900">
+              Credit / Khata
+            </h2>
+            <p className="mt-2 text-sm text-gray-500">
+              Available only to eligible approved business accounts.
+            </p>
+            <button
+              type="button"
+              className="mt-5 text-sm font-medium text-blue-600"
+            >
+              View Credit
+            </button>
+          </div>
+
+        </section>
+
+        <section className="mt-8 rounded-xl border bg-white p-6">
+          <h2 className="text-lg font-semibold text-gray-900">
+            Quick Shopping
+          </h2>
+
+          <p className="mt-2 text-sm text-gray-500">
+            Find the part you need and continue your wholesale order.
+          </p>
+
+          <button
+            type="button"
+            className="mt-5 rounded-lg bg-black px-5 py-3 font-medium text-white"
+          >
+            Shop Products
+          </button>
+        </section>
+
+      </div>
+    </main>
+  )
+}

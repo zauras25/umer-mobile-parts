@@ -1,0 +1,152 @@
+﻿import Link from "next/link";
+export default function AccountPage() {
+  return (
+    <main className="min-h-screen bg-gray-50 px-6 py-10">
+      <div className="mx-auto max-w-6xl">
+
+        <header>
+          <p className="text-sm font-medium text-gray-500">
+            My Account
+          </p>
+
+          <h1 className="mt-2 text-3xl font-bold text-gray-900">
+            Account Overview
+          </h1>
+
+          <p className="mt-2 text-gray-600">
+            Manage your orders, wishlist, addresses and account settings.
+          </p>
+        </header>
+
+        <section className="mt-8 rounded-xl border bg-white p-6">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <h2 className="text-xl font-semibold text-gray-900">
+                Welcome back
+              </h2>
+
+              <p className="mt-1 text-sm text-gray-500">
+                General Customer
+              </p>
+            </div>
+
+            <span className="rounded-full bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700">
+              General Account
+            </span>
+          </div>
+        </section>
+
+        <section className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+
+          <Link href="/orders"
+            className="rounded-xl border bg-white p-6 transition hover:border-gray-400"
+          >
+            <h2 className="font-semibold text-gray-900">
+              My Orders
+            </h2>
+            <p className="mt-2 text-sm text-gray-500">
+              View orders, track deliveries and buy again.
+            </p>
+          </Link>
+
+          <Link href="/wishlist"
+            className="rounded-xl border bg-white p-6 transition hover:border-gray-400"
+          >
+            <h2 className="font-semibold text-gray-900">
+              Wishlist
+            </h2>
+            <p className="mt-2 text-sm text-gray-500">
+              View and manage your saved products.
+            </p>
+          </Link>
+
+          <Link href="/account/addresses"
+            className="rounded-xl border bg-white p-6 transition hover:border-gray-400"
+          >
+            <h2 className="font-semibold text-gray-900">
+              Addresses
+            </h2>
+            <p className="mt-2 text-sm text-gray-500">
+              Manage your delivery addresses.
+            </p>
+          </Link>
+
+          <Link href="/account/notifications"
+            className="rounded-xl border bg-white p-6 transition hover:border-gray-400"
+          >
+            <h2 className="font-semibold text-gray-900">
+              Notifications
+            </h2>
+            <p className="mt-2 text-sm text-gray-500">
+              View order and account notifications.
+            </p>
+          </Link>
+
+          <Link href="/account/profile"
+            className="rounded-xl border bg-white p-6 transition hover:border-gray-400"
+          >
+            <h2 className="font-semibold text-gray-900">
+              Profile
+            </h2>
+            <p className="mt-2 text-sm text-gray-500">
+              Manage your personal account information.
+            </p>
+          </Link>
+
+          <Link href="/retailer"
+            className="rounded-xl border bg-white p-6 transition hover:border-gray-400"
+          >
+            <h2 className="font-semibold text-gray-900">
+              Become a Retailer
+            </h2>
+            <p className="mt-2 text-sm text-gray-500">
+              Apply for verified retailer status and unlock wholesale
+              pricing.
+            </p>
+          </Link>
+
+        </section>
+
+        <section className="mt-8 rounded-xl border bg-white p-6">
+          <h2 className="text-lg font-semibold text-gray-900">
+            Account Status
+          </h2>
+
+          <div className="mt-4 grid gap-4 sm:grid-cols-3">
+
+            <div className="rounded-lg bg-gray-50 p-4">
+              <p className="text-xs uppercase text-gray-500">
+                Customer Type
+              </p>
+              <p className="mt-1 font-medium text-gray-900">
+                General
+              </p>
+            </div>
+
+            <div className="rounded-lg bg-gray-50 p-4">
+              <p className="text-xs uppercase text-gray-500">
+                Retailer Status
+              </p>
+              <p className="mt-1 font-medium text-gray-900">
+                Not Applied
+              </p>
+            </div>
+
+            <div className="rounded-lg bg-gray-50 p-4">
+              <p className="text-xs uppercase text-gray-500">
+                Wholesale Pricing
+              </p>
+              <p className="mt-1 font-medium text-gray-900">
+                Locked
+              </p>
+            </div>
+
+          </div>
+        </section>
+
+      </div>
+    </main>
+  )
+}
+
+

@@ -1,0 +1,68 @@
+﻿export default function RetailerDocumentsPage() {
+  return (
+    <main className="min-h-screen bg-gray-50 px-6 py-12">
+      <div className="mx-auto max-w-2xl">
+        <div className="rounded-xl border bg-white p-8 shadow-sm">
+          <p className="text-sm font-medium text-blue-600">
+            Step 4 of 4
+          </p>
+
+          <h1 className="mt-2 text-3xl font-bold text-gray-900">
+            Business Verification
+          </h1>
+
+          <p className="mt-2 text-gray-600">
+            Upload the required documents to verify your business.
+          </p>
+
+          <div className="mt-8 space-y-6">
+            <div className="rounded-lg border border-dashed p-6">
+              <label className="block text-sm font-medium text-gray-700">
+                Shop Photo
+                <span className="ml-1 text-red-500">*</span>
+              </label>
+
+              <p className="mt-1 text-sm text-gray-500">
+                Upload a clear photo of your shop or business location.
+              </p>
+
+              <input
+                type="file"
+                accept="image/*"
+                className="mt-4 block w-full text-sm"
+              />
+            </div>
+
+            <div className="rounded-lg border border-dashed p-6">
+              <label className="block text-sm font-medium text-gray-700">
+                Business Card
+                <span className="ml-1 text-red-500">*</span>
+              </label>
+
+              <p className="mt-1 text-sm text-gray-500">
+                Upload a clear photo or scan of your business card.
+              </p>
+
+              <input
+                type="file"
+                accept="image/*"
+                className="mt-4 block w-full text-sm"
+              />
+            </div>
+          </div>
+
+          <button
+            type="button"
+            className="mt-8 w-full rounded-lg bg-black px-5 py-3 font-medium text-white"
+          >
+            Continue to Review
+          </button>
+
+          <p className="mt-6 text-sm text-gray-500">
+            Both documents are required for retailer verification.
+          </p>
+        </div>
+      </div>
+    </main>
+  )
+}

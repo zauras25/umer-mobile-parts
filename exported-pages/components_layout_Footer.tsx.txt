@@ -1,0 +1,2 @@
+﻿===== FILE: components\layout\Footer.tsx =====
+

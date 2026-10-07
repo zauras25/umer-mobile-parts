@@ -1,4 +1,6 @@
-﻿import Link from "next/link";
+﻿===== FILE: app\page.tsx =====
+
+import Link from "next/link";
 import { categories } from "@/data/products";
 import { products } from "@/data/products";
 import ProductCard from "@/components/product/ProductCard";

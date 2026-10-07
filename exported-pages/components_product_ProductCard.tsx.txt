@@ -1,0 +1,118 @@
+﻿===== FILE: components\product\ProductCard.tsx =====
+
+import type { CustomerType, Product } from "@/data/products";
+import StockBadge from "./StockBadge";
+
+interface ProductCardProps {
+  product: Product;
+  customerType?: CustomerType;
+}
+
+function formatPrice(price: number) {
+  return new Intl.NumberFormat("en-PK").format(price);
+}
+
+export default function ProductCard({
+  product,
+  customerType = "guest",
+}: ProductCardProps) {
+  const isApprovedRetailer = customerType === "approved-retailer";
+
+  const displayPrice =
+    isApprovedRetailer && product.wholesalePrice
+      ? product.wholesalePrice
+      : product.price;
+
+  const isOutOfStock = product.stockStatus === "out-of-stock";
+
+  return (
+    <article className="group rounded-xl border border-gray-200 bg-white p-3 transition hover:border-gray-300 hover:shadow-sm">
+      {/* Product Image */}
+      <div className="relative aspect-square overflow-hidden rounded-lg bg-gray-100">
+        <div className="flex h-full items-center justify-center text-sm text-gray-400">
+          Product Image
+        </div>
+
+        {/* Wishlist */}
+        <button
+          type="button"
+          aria-label={`Add ${product.name} to wishlist`}
+          className="absolute right-2 top-2 flex h-9 w-9 items-center justify-center rounded-full bg-white text-gray-600 shadow-sm hover:text-black"
+        >
+          â™¡
+        </button>
+      </div>
+
+      {/* Product Information */}
+      <div className="mt-4">
+        <div className="mb-2 flex items-center justify-between gap-2">
+          <span className="text-xs font-medium text-gray-500">
+            {product.quality}
+          </span>
+
+          <StockBadge status={product.stockStatus} />
+        </div>
+
+        <h3 className="line-clamp-2 min-h-10 text-sm font-semibold text-gray-900">
+          {product.name}
+        </h3>
+
+        <p className="mt-1 text-xs text-gray-500">
+          {product.brand} Â· {product.model}
+        </p>
+
+        {/* Price */}
+        <div className="mt-3">
+          {isApprovedRetailer && product.wholesalePrice ? (
+            <>
+              <div className="flex items-center gap-2">
+                <span className="text-lg font-bold text-gray-900">
+                  Rs. {formatPrice(product.wholesalePrice)}
+                </span>
+
+                <span className="text-xs font-semibold text-green-600">
+                  {product.discountPercentage}% OFF
+                </span>
+              </div>
+
+              <p className="mt-0.5 text-xs text-gray-400 line-through">
+                Rs. {formatPrice(product.price)}
+              </p>
+
+              <p className="mt-1 text-xs font-medium text-blue-600">
+                Your retailer price
+              </p>
+            </>
+          ) : (
+            <span className="text-lg font-bold text-gray-900">
+              Rs. {formatPrice(displayPrice)}
+            </span>
+          )}
+        </div>
+
+        {/* Warranty */}
+        <p className="mt-2 text-xs text-gray-500">
+          Warranty: {product.warranty}
+        </p>
+
+        {/* Actions */}
+        <div className="mt-4 flex gap-2">
+          <button
+            type="button"
+            className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm font-medium text-gray-800 hover:bg-gray-50"
+          >
+            Compare
+          </button>
+
+          <button
+            type="button"
+            disabled={isOutOfStock}
+            className="flex-1 rounded-lg bg-black px-3 py-2 text-sm font-medium text-white hover:bg-gray-800 disabled:cursor-not-allowed disabled:bg-gray-200 disabled:text-gray-500"
+          >
+            {isOutOfStock ? "Unavailable" : "Add to Cart"}
+          </button>
+        </div>
+      </div>
+    </article>
+  );
+}

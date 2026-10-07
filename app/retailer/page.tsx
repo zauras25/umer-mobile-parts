@@ -1,0 +1,138 @@
+﻿export default function BecomeARetailerPage() {
+  return (
+    <main className="min-h-screen bg-gray-50">
+      <div className="mx-auto max-w-6xl px-6 py-12">
+
+        <section className="rounded-2xl bg-white p-8 shadow-sm sm:p-12">
+          <div className="max-w-3xl">
+            <p className="text-sm font-medium text-blue-600">
+              Retailer Program
+            </p>
+
+            <h1 className="mt-3 text-4xl font-bold tracking-tight text-gray-900">
+              Become a Retailer
+            </h1>
+
+            <p className="mt-5 text-lg leading-8 text-gray-600">
+              Get verified as a retailer and unlock wholesale pricing,
+              quantity-based discounts, faster repeat purchasing, and
+              business account features.
+            </p>
+
+            <a
+              href="/retailer/register"
+              className="mt-8 inline-block rounded-lg bg-black px-6 py-3 font-medium text-white hover:bg-gray-800"
+            >
+              Apply as a Retailer
+            </a>
+          </div>
+        </section>
+
+        <section className="mt-8 grid gap-5 md:grid-cols-2 lg:grid-cols-4">
+
+          <div className="rounded-xl border bg-white p-6">
+            <div className="text-2xl">01</div>
+            <h2 className="mt-4 font-semibold text-gray-900">
+              Wholesale Pricing
+            </h2>
+            <p className="mt-2 text-sm leading-6 text-gray-500">
+              Access retailer pricing after your application is approved.
+            </p>
+          </div>
+
+          <div className="rounded-xl border bg-white p-6">
+            <div className="text-2xl">02</div>
+            <h2 className="mt-4 font-semibold text-gray-900">
+              Quantity Discounts
+            </h2>
+            <p className="mt-2 text-sm leading-6 text-gray-500">
+              Unlock better wholesale rates when purchasing higher quantities.
+            </p>
+          </div>
+
+          <div className="rounded-xl border bg-white p-6">
+            <div className="text-2xl">03</div>
+            <h2 className="mt-4 font-semibold text-gray-900">
+              Buy Again
+            </h2>
+            <p className="mt-2 text-sm leading-6 text-gray-500">
+              Reorder previously purchased products with fewer steps.
+            </p>
+          </div>
+
+          <div className="rounded-xl border bg-white p-6">
+            <div className="text-2xl">04</div>
+            <h2 className="mt-4 font-semibold text-gray-900">
+              Business Account
+            </h2>
+            <p className="mt-2 text-sm leading-6 text-gray-500">
+              Manage your retailer information and eligible business features.
+            </p>
+          </div>
+
+        </section>
+
+        <section className="mt-8 rounded-xl border bg-white p-6 sm:p-8">
+          <h2 className="text-xl font-semibold text-gray-900">
+            How retailer verification works
+          </h2>
+
+          <div className="mt-6 grid gap-6 md:grid-cols-4">
+
+            <div>
+              <p className="font-semibold text-gray-900">
+                1. Create Account
+              </p>
+              <p className="mt-2 text-sm text-gray-500">
+                Provide your basic account information and verify your mobile
+                number.
+              </p>
+            </div>
+
+            <div>
+              <p className="font-semibold text-gray-900">
+                2. Business Details
+              </p>
+              <p className="mt-2 text-sm text-gray-500">
+                Tell us about your shop or business.
+              </p>
+            </div>
+
+            <div>
+              <p className="font-semibold text-gray-900">
+                3. Verification
+              </p>
+              <p className="mt-2 text-sm text-gray-500">
+                Submit your shop photo and business card.
+              </p>
+            </div>
+
+            <div>
+              <p className="font-semibold text-gray-900">
+                4. Review
+              </p>
+              <p className="mt-2 text-sm text-gray-500">
+                Our team reviews your application before approval.
+              </p>
+            </div>
+
+          </div>
+        </section>
+
+        <section className="mt-8 rounded-xl border bg-white p-6 sm:p-8">
+          <h2 className="text-xl font-semibold text-gray-900">
+            Important information
+          </h2>
+
+          <ul className="mt-4 space-y-3 text-sm text-gray-600">
+            <li>• Retailer approval is required before wholesale pricing is unlocked.</li>
+            <li>• Pending retailers can continue shopping as regular customers.</li>
+            <li>• Shop Photo and Business Card are required for verification.</li>
+            <li>• You do not need to create another account if your application is rejected.</li>
+          </ul>
+        </section>
+
+      </div>
+    </main>
+  )
+}

@@ -1,0 +1,145 @@
+﻿===== FILE: app\compare\page.tsx =====
+
+"use client";
+
+import { useState } from "react";
+import Link from "next/link";
+import { products } from "@/data/products";
+
+export default function ComparePage() {
+  const [selectedIds, setSelectedIds] = useState<string[]>([
+    "ump-001",
+    "ump-002",
+  ]);
+
+  const selectedProducts = products.filter((product) =>
+    selectedIds.includes(product.id)
+  );
+
+  function removeProduct(id: string) {
+    setSelectedIds((current) => current.filter((item) => item !== id));
+  }
+
+  if (selectedProducts.length === 0) {
+    return (
+      <main className="mx-auto max-w-5xl px-4 py-16 text-center">
+        <h1 className="text-3xl font-bold text-gray-900">Compare Products</h1>
+        <p className="mt-3 text-gray-500">No products selected for comparison.</p>
+        <Link
+          href="/shop"
+          className="mt-6 inline-block rounded-xl bg-black px-6 py-3 font-semibold text-white"
+        >
+          Back to Shop
+        </Link>
+      </main>
+    );
+  }
+
+  return (
+    <main className="min-h-screen bg-white">
+      <div className="mx-auto max-w-7xl px-4 py-10">
+        <div className="mb-8">
+          <p className="text-sm text-gray-500">Shop / Compare</p>
+          <h1 className="mt-2 text-3xl font-bold text-gray-900">
+            Compare Products
+          </h1>
+          <p className="mt-2 text-gray-500">
+            Compare quality, compatibility, warranty, price and availability.
+          </p>
+        </div>
+
+        <div className="overflow-x-auto rounded-2xl border border-gray-200">
+          <table className="min-w-[800px] w-full border-collapse">
+            <tbody>
+              <tr>
+                <th className="w-48 bg-gray-50 p-5 text-left text-sm font-semibold">
+                  Product
+                </th>
+
+                {selectedProducts.map((product) => (
+                  <td key={product.id} className="border-l p-5 align-top">
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <p className="font-bold text-gray-900">
+                          {product.name}
+                        </p>
+                        <p className="mt-1 text-sm text-gray-500">
+                          {product.brand}
+                        </p>
+                      </div>
+
+                      <button
+                        onClick={() => removeProduct(product.id)}
+                        className="text-sm text-red-600"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  </td>
+                ))}
+              </tr>
+
+              {[
+                ["Model", (p: typeof products[number]) => p.model],
+                ["Quality", (p: typeof products[number]) => p.quality],
+                [
+                  "Compatible Models",
+                  (p: typeof products[number]) =>
+                    p.compatibleModels.join(", "),
+                ],
+                [
+                  "Warranty",
+                  (p: typeof products[number]) => p.warranty,
+                ],
+                [
+                  "Price",
+                  (p: typeof products[number]) =>
+                    `Rs. ${p.price.toLocaleString()}`,
+                ],
+                [
+                  "Availability",
+                  (p: typeof products[number]) =>
+                    p.stockStatus === "in-stock"
+                      ? "In Stock"
+                      : p.stockStatus === "low-stock"
+                      ? "Low Stock"
+                      : "Out of Stock",
+                ],
+              ].map(([label, getValue]) => (
+                <tr key={label as string} className="border-t">
+                  <th className="bg-gray-50 p-5 text-left text-sm font-medium text-gray-600">
+                    {label as string}
+                  </th>
+
+                  {selectedProducts.map((product) => (
+                    <td key={product.id} className="border-l p-5">
+                      {typeof getValue === "function" ? getValue(product) : getValue}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+
+              <tr className="border-t">
+                <th className="bg-gray-50 p-5 text-left text-sm font-medium">
+                  Action
+                </th>
+
+                {selectedProducts.map((product) => (
+                  <td key={product.id} className="border-l p-5">
+                    <Link
+                      href={`/shop/${product.slug}`}
+                      className="inline-block rounded-xl bg-black px-5 py-3 text-sm font-semibold text-white"
+                    >
+                      View Product
+                    </Link>
+                  </td>
+                ))}
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  );
+}
+

@@ -1,0 +1,136 @@
+﻿===== FILE: app\contact\page.tsx =====
+
+export default function ContactPage() {
+  return (
+    <main className="min-h-screen bg-gray-50 px-6 py-10">
+      <div className="mx-auto max-w-5xl">
+
+        <header>
+          <p className="text-sm font-medium text-gray-500">
+            Umar Mobile Parts
+          </p>
+
+          <h1 className="mt-2 text-3xl font-bold text-gray-900">
+            Contact Us
+          </h1>
+
+          <p className="mt-2 max-w-2xl text-gray-600">
+            Need help with products, orders, wholesale purchasing, warranty,
+            or replacement? Get in touch with our team.
+          </p>
+        </header>
+
+        <section className="mt-8 grid gap-6 md:grid-cols-2">
+
+          <div className="rounded-xl border bg-white p-7">
+            <h2 className="text-xl font-semibold text-gray-900">
+              Visit Our Store
+            </h2>
+
+            <p className="mt-4 text-sm leading-6 text-gray-600">
+              Umar Mobile Parts
+              <br />
+              Zam Zam Mall
+              <br />
+              Lahore, Pakistan
+            </p>
+          </div>
+
+          <div className="rounded-xl border bg-white p-7">
+            <h2 className="text-xl font-semibold text-gray-900">
+              WhatsApp Support
+            </h2>
+
+            <p className="mt-4 text-sm leading-6 text-gray-600">
+              For product questions, order assistance, warranty information,
+              and replacement support, use our WhatsApp support channel.
+            </p>
+
+            <a
+              href="/support/whatsapp"
+              className="mt-5 inline-block rounded-lg bg-green-600 px-6 py-3 text-sm font-medium text-white"
+            >
+              Contact on WhatsApp
+            </a>
+          </div>
+
+        </section>
+
+        <section className="mt-6 rounded-xl border bg-white p-7">
+
+          <h2 className="text-xl font-semibold text-gray-900">
+            How We Can Help
+          </h2>
+
+          <div className="mt-5 grid gap-4 sm:grid-cols-2">
+
+            <div className="rounded-lg bg-gray-50 p-5">
+              <h3 className="font-medium text-gray-900">
+                Product Information
+              </h3>
+
+              <p className="mt-2 text-sm leading-6 text-gray-500">
+                Ask about compatibility, quality, availability, and mobile
+                parts.
+              </p>
+            </div>
+
+            <div className="rounded-lg bg-gray-50 p-5">
+              <h3 className="font-medium text-gray-900">
+                Order Assistance
+              </h3>
+
+              <p className="mt-2 text-sm leading-6 text-gray-500">
+                Get help with an existing order, delivery, or account.
+              </p>
+            </div>
+
+            <div className="rounded-lg bg-gray-50 p-5">
+              <h3 className="font-medium text-gray-900">
+                Retailer Support
+              </h3>
+
+              <p className="mt-2 text-sm leading-6 text-gray-500">
+                Get assistance with retailer registration and wholesale
+                access.
+              </p>
+            </div>
+
+            <div className="rounded-lg bg-gray-50 p-5">
+              <h3 className="font-medium text-gray-900">
+                Warranty & Replacement
+              </h3>
+
+              <p className="mt-2 text-sm leading-6 text-gray-500">
+                Contact support regarding warranty or replacement requests.
+              </p>
+            </div>
+
+          </div>
+
+        </section>
+
+        <section className="mt-6 rounded-xl border border-blue-200 bg-blue-50 p-7">
+
+          <h2 className="font-semibold text-blue-900">
+            Online Shopping
+          </h2>
+
+          <p className="mt-2 text-sm leading-6 text-blue-800">
+            You can browse products, add items to your cart, checkout, and
+            track orders directly through the website.
+          </p>
+
+          <a
+            href="/shop"
+            className="mt-5 inline-block rounded-lg bg-black px-6 py-3 text-sm font-medium text-white"
+          >
+            Browse Shop
+          </a>
+
+        </section>
+
+      </div>
+    </main>
+  )
+}

@@ -1,0 +1,38 @@
+import type { CustomerType, Product } from "@/data/products";
+import ProductCard from "./ProductCard";
+
+interface ProductGridProps {
+  products: Product[];
+  customerType?: CustomerType;
+}
+
+export default function ProductGrid({
+  products,
+  customerType = "guest",
+}: ProductGridProps) {
+  if (products.length === 0) {
+    return (
+      <div className="rounded-xl border border-dashed border-gray-300 p-12 text-center">
+        <h3 className="text-base font-semibold text-gray-900">
+          No products found
+        </h3>
+
+        <p className="mt-2 text-sm text-gray-500">
+          Try a different part name, model number, or clear your filters.
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
+      {products.map((product) => (
+        <ProductCard
+          key={product.id}
+          product={product}
+          customerType={customerType}
+        />
+      ))}
+    </div>
+  );
+}

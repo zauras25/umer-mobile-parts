@@ -1,0 +1,57 @@
+﻿export default function RetailerOtpPage() {
+  return (
+    <main className="min-h-screen bg-gray-50 px-6 py-12">
+      <div className="mx-auto max-w-2xl">
+        <div className="rounded-xl border bg-white p-8 shadow-sm">
+          <p className="text-sm font-medium text-blue-600">
+            Step 2 of 4
+          </p>
+
+          <h1 className="mt-2 text-3xl font-bold text-gray-900">
+            Verify Mobile Number
+          </h1>
+
+          <p className="mt-2 text-gray-600">
+            Enter the OTP sent to your mobile number to continue your
+            retailer registration.
+          </p>
+
+          <div className="mt-8">
+            <label className="block text-sm font-medium text-gray-700">
+              Mobile OTP
+            </label>
+
+            <input
+              type="text"
+              inputMode="numeric"
+              maxLength={6}
+              placeholder="Enter 6-digit OTP"
+              className="mt-2 w-full rounded-lg border px-4 py-3 text-center text-lg tracking-[0.4em] outline-none focus:border-blue-500"
+            />
+          </div>
+
+          <button
+            type="button"
+            className="mt-6 w-full rounded-lg bg-black px-5 py-3 font-medium text-white"
+          >
+            Verify & Continue
+          </button>
+
+          <div className="mt-6 text-center">
+            <button
+              type="button"
+              className="text-sm font-medium text-blue-600 hover:underline"
+            >
+              Resend OTP
+            </button>
+          </div>
+
+          <p className="mt-6 text-center text-sm text-gray-500">
+            Didn&apos;t receive the code? Check your mobile number and try again.
+          </p>
+        </div>
+      </div>
+    </main>
+  )
+}
+

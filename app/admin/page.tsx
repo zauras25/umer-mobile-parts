@@ -1,35 +1,44 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 
 import { ADMIN_NAVIGATION } from "@/lib/cms/admin-navigation";
+import { productRepository } from "@/lib/cms/repositories/product-repository";
+import { categoryRepository } from "@/lib/cms/repositories/category-repository";
+import { cmsRepository } from "@/lib/cms/repositories/cms-repository";
 
-const stats = [
-  {
-    label: "Published Pages",
-    value: "0",
-    description: "Website content",
-    color: "bg-blue-50 text-blue-600",
-  },
-  {
-    label: "Products",
-    value: "0",
-    description: "Catalogue content",
-    color: "bg-emerald-50 text-emerald-600",
-  },
-  {
-    label: "Categories",
-    value: "0",
-    description: "Catalogue structure",
-    color: "bg-violet-50 text-violet-600",
-  },
-  {
-    label: "Reviews",
-    value: "0",
-    description: "Pending moderation",
-    color: "bg-amber-50 text-amber-600",
-  },
-];
+export default async function AdminDashboard() {
+  const [products, categories, reviews] = await Promise.all([
+    productRepository.getAll(),
+    categoryRepository.getAll(),
+    cmsRepository.reviews.getAll(),
+  ]);
 
-export default function AdminDashboard() {
+  const stats = [
+    {
+      label: "Published Pages",
+      value: "0",
+      description: "Website content",
+      color: "bg-blue-50 text-blue-600",
+    },
+    {
+      label: "Products",
+      value: String(products.length),
+      description: "Catalogue content",
+      color: "bg-emerald-50 text-emerald-600",
+    },
+    {
+      label: "Categories",
+      value: String(categories.length),
+      description: "Catalogue structure",
+      color: "bg-violet-50 text-violet-600",
+    },
+    {
+      label: "Reviews",
+      value: String(reviews.length),
+      description: "Pending moderation",
+      color: "bg-amber-50 text-amber-600",
+    },
+  ];
+
   return (
     <div className="mx-auto max-w-7xl">
       <div className="mb-8">
@@ -56,7 +65,7 @@ export default function AdminDashboard() {
             <div
               className={`flex h-10 w-10 items-center justify-center rounded-xl text-sm font-black ${stat.color}`}
             >
-              ●
+              •
             </div>
 
             <p className="mt-5 text-sm font-semibold text-slate-500">

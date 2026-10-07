@@ -1,5 +1,7 @@
 ﻿"use server";
 
+import { revalidatePath } from "next/cache";
+
 import {
   categoryRepository,
   type CategoryInput,
@@ -19,47 +21,74 @@ function validate(input: CategoryInput) {
   }
 }
 
+function refreshCategories() {
+  revalidatePath("/admin/categories");
+  revalidatePath("/categories");
+  revalidatePath("/shop");
+  revalidatePath("/");
+}
+
 export async function createCategory(input: CategoryInput) {
   validate(input);
 
-  const existing = await categoryRepository.getBySlug(input.slug);
+  const existing = await categoryRepository.getBySlug(
+    input.slug.trim().toLowerCase(),
+  );
 
   if (existing) {
     throw new Error("A category with this slug already exists.");
   }
 
-  return categoryRepository.create({
+  const category = await categoryRepository.create({
     ...input,
     name: input.name.trim(),
     slug: input.slug.trim().toLowerCase(),
     description: input.description.trim(),
   });
+
+  refreshCategories();
+
+  return category;
 }
 
 export async function updateCategory(
   id: string,
-  input: CategoryInput
+  input: CategoryInput,
 ) {
   validate(input);
 
-  const existing = await categoryRepository.getBySlug(input.slug);
+  const existing = await categoryRepository.getBySlug(
+    input.slug.trim().toLowerCase(),
+  );
 
   if (existing && existing.id !== id) {
     throw new Error("A category with this slug already exists.");
   }
 
-  return categoryRepository.update(id, {
+  const category = await categoryRepository.update(id, {
     ...input,
     name: input.name.trim(),
     slug: input.slug.trim().toLowerCase(),
     description: input.description.trim(),
   });
+
+  refreshCategories();
+
+  return category;
 }
 
 export async function deleteCategory(id: string) {
-  return categoryRepository.delete(id);
+  await categoryRepository.delete(id);
+
+  refreshCategories();
+
+  return { success: true };
 }
 
 export async function toggleCategoryStatus(id: string) {
-  return categoryRepository.toggleStatus(id);
+  const category = await categoryRepository.toggleStatus(id);
+
+  refreshCategories();
+
+  return category;
 }

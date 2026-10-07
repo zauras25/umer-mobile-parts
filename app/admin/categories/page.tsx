@@ -2,7 +2,12 @@
 import { categoryRepository } from "@/lib/cms/repositories/category-repository";
 
 export default async function AdminCategoriesPage() {
-  const categories = await categoryRepository.getAll();
+  const categories =
+    await categoryRepository.getAll();
 
-  return <CategoryManager initialCategories={categories} />;
+  return (
+    <CategoryManager
+      initialCategories={categories}
+    />
+  );
 }

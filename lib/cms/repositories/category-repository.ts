@@ -12,22 +12,41 @@ export type CategoryInput = {
 
 export class CategoryRepository {
   async getAll(): Promise<CmsCategory[]> {
-    return [...cmsCategories].sort((a, b) => a.sortOrder - b.sortOrder);
+    return [...cmsCategories].sort(
+      (a, b) => a.sortOrder - b.sortOrder,
+    );
   }
 
-  async getById(id: string): Promise<CmsCategory | null> {
-    return cmsCategories.find((category) => category.id === id) ?? null;
+  async getById(
+    id: string,
+  ): Promise<CmsCategory | null> {
+    return (
+      cmsCategories.find(
+        (category) => category.id === id,
+      ) ?? null
+    );
   }
 
-  async getBySlug(slug: string): Promise<CmsCategory | null> {
-    return cmsCategories.find((category) => category.slug === slug) ?? null;
+  async getBySlug(
+    slug: string,
+  ): Promise<CmsCategory | null> {
+    const normalizedSlug = slug.trim().toLowerCase();
+
+    return (
+      cmsCategories.find(
+        (category) =>
+          category.slug.toLowerCase() === normalizedSlug,
+      ) ?? null
+    );
   }
 
-  async create(input: CategoryInput): Promise<CmsCategory> {
+  async create(
+    input: CategoryInput,
+  ): Promise<CmsCategory> {
     const now = new Date().toISOString();
 
     const category: CmsCategory = {
-      id: `cat-${Date.now()}`,
+      id: `cat-${crypto.randomUUID()}`,
       ...input,
       createdAt: now,
       updatedAt: now,
@@ -40,9 +59,11 @@ export class CategoryRepository {
 
   async update(
     id: string,
-    input: CategoryInput
+    input: CategoryInput,
   ): Promise<CmsCategory> {
-    const category = cmsCategories.find((item) => item.id === id);
+    const category = cmsCategories.find(
+      (item) => item.id === id,
+    );
 
     if (!category) {
       throw new Error("Category not found.");
@@ -57,7 +78,9 @@ export class CategoryRepository {
   }
 
   async delete(id: string): Promise<void> {
-    const index = cmsCategories.findIndex((category) => category.id === id);
+    const index = cmsCategories.findIndex(
+      (category) => category.id === id,
+    );
 
     if (index === -1) {
       throw new Error("Category not found.");
@@ -66,15 +89,21 @@ export class CategoryRepository {
     cmsCategories.splice(index, 1);
   }
 
-  async toggleStatus(id: string): Promise<CmsCategory> {
-    const category = cmsCategories.find((item) => item.id === id);
+  async toggleStatus(
+    id: string,
+  ): Promise<CmsCategory> {
+    const category = cmsCategories.find(
+      (item) => item.id === id,
+    );
 
     if (!category) {
       throw new Error("Category not found.");
     }
 
     category.status =
-      category.status === "active" ? "inactive" : "active";
+      category.status === "active"
+        ? "inactive"
+        : "active";
 
     category.updatedAt = new Date().toISOString();
 
@@ -82,4 +111,5 @@ export class CategoryRepository {
   }
 }
 
-export const categoryRepository = new CategoryRepository();
+export const categoryRepository =
+  new CategoryRepository();

@@ -1,11 +1,10 @@
-"use client";
+﻿"use client";
 
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import {
   createProduct,
-  deleteProduct,
-  toggleProductStatus,
   updateProduct,
 } from "@/app/admin/products/actions/product-actions";
 
@@ -15,8 +14,21 @@ import type {
   CmsProductStatus,
 } from "@/lib/cms/models/product-types";
 
+type Category = {
+  id: string;
+  name: string;
+  slug: string;
+  description: string;
+  parentId: string | null;
+  sortOrder: number;
+  status: "active" | "inactive";
+  createdAt: string;
+  updatedAt: string;
+};
+
 type ProductEditorProps = {
   product?: CmsProduct;
+  categories: Category[];
 };
 
 const emptyImage: CmsProductImage = {
@@ -30,6 +42,7 @@ const initialProduct = {
   name: "",
   slug: "",
   sku: "",
+  categoryId: "",
   brand: "",
   model: "",
   partType: "",
@@ -49,11 +62,17 @@ const initialProduct = {
   seoDescription: "",
 };
 
-export function ProductEditor({ product }: ProductEditorProps) {
+export function ProductEditor({
+  product,
+  categories,
+}: ProductEditorProps) {
+  const router = useRouter();
+
   const [form, setForm] = useState({
     name: product?.name ?? initialProduct.name,
     slug: product?.slug ?? initialProduct.slug,
     sku: product?.sku ?? initialProduct.sku,
+    categoryId: product?.categoryId ?? initialProduct.categoryId,
     brand: product?.brand ?? initialProduct.brand,
     model: product?.model ?? initialProduct.model,
     partType: product?.partType ?? initialProduct.partType,
@@ -82,6 +101,7 @@ export function ProductEditor({ product }: ProductEditorProps) {
   });
 
   const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false);
 
   function updateField(
     field: keyof typeof form,
@@ -96,6 +116,7 @@ export function ProductEditor({ product }: ProductEditorProps) {
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
     setMessage("");
+    setLoading(true);
 
     const images = form.imageUrl.trim()
       ? [
@@ -112,6 +133,7 @@ export function ProductEditor({ product }: ProductEditorProps) {
       name: form.name,
       slug: form.slug,
       sku: form.sku,
+      categoryId: form.categoryId,
       brand: form.brand,
       model: form.model,
       partType: form.partType,
@@ -142,49 +164,29 @@ export function ProductEditor({ product }: ProductEditorProps) {
       ? await updateProduct(product.id, input)
       : await createProduct(input);
 
-    setMessage(
-      result.success
-        ? "Product saved successfully."
-        : result.error ?? "Unable to save product.",
-    );
-  }
-
-  async function handleDelete() {
-    if (!product) {
+    if (!result.success) {
+      setMessage(result.error ?? "Unable to save product.");
+      setLoading(false);
       return;
     }
 
-    const result = await deleteProduct(product.id);
-
-    setMessage(
-      result.success
-        ? "Product deleted successfully."
-        : result.error ?? "Unable to delete product.",
-    );
-  }
-
-  async function handleToggleStatus() {
-    if (!product) {
+    if (!product && result.product) {
+      router.push("/admin/products");
+      router.refresh();
       return;
     }
 
-    const result = await toggleProductStatus(product.id);
-
-    setMessage(
-      result.success
-        ? "Product status updated."
-        : result.error ?? "Unable to update status.",
-    );
+    setMessage("Product saved successfully.");
+    setLoading(false);
+    router.push("/admin/products");
+    router.refresh();
   }
 
   const inputClass =
     "w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-rose-500 focus:ring-4 focus:ring-rose-500/10";
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="space-y-6"
-    >
+    <form onSubmit={handleSubmit} className="space-y-6">
       <div className="grid gap-6 lg:grid-cols-2">
         <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
           <h2 className="mb-5 text-lg font-bold text-slate-900">
@@ -196,9 +198,8 @@ export function ProductEditor({ product }: ProductEditorProps) {
               className={inputClass}
               placeholder="Product name"
               value={form.name}
-              onChange={(e) =>
-                updateField("name", e.target.value)
-              }
+              onChange={(e) => updateField("name", e.target.value)}
+              required
             />
 
             <div className="grid gap-4 sm:grid-cols-2">
@@ -206,19 +207,45 @@ export function ProductEditor({ product }: ProductEditorProps) {
                 className={inputClass}
                 placeholder="SKU"
                 value={form.sku}
-                onChange={(e) =>
-                  updateField("sku", e.target.value)
-                }
+                onChange={(e) => updateField("sku", e.target.value)}
+                required
               />
 
               <input
                 className={inputClass}
                 placeholder="Slug"
                 value={form.slug}
-                onChange={(e) =>
-                  updateField("slug", e.target.value)
-                }
+                onChange={(e) => updateField("slug", e.target.value)}
               />
+            </div>
+
+            <div>
+              <label className="mb-2 block text-sm font-bold text-slate-700">
+                Category
+              </label>
+
+              <select
+                className={inputClass}
+                value={form.categoryId}
+                onChange={(e) =>
+                  updateField("categoryId", e.target.value)
+                }
+                required
+              >
+                <option value="">Select category</option>
+
+                {categories.map((category) => (
+                  <option key={category.id} value={category.id}>
+                    {category.name}
+                  </option>
+                ))}
+              </select>
+
+              {categories.length === 0 && (
+                <p className="mt-2 text-xs font-medium text-red-600">
+                  No active categories available. Create a category first.
+                </p>
+              )}
             </div>
 
             <div className="grid gap-4 sm:grid-cols-2">
@@ -226,18 +253,14 @@ export function ProductEditor({ product }: ProductEditorProps) {
                 className={inputClass}
                 placeholder="Brand"
                 value={form.brand}
-                onChange={(e) =>
-                  updateField("brand", e.target.value)
-                }
+                onChange={(e) => updateField("brand", e.target.value)}
               />
 
               <input
                 className={inputClass}
                 placeholder="Model"
                 value={form.model}
-                onChange={(e) =>
-                  updateField("model", e.target.value)
-                }
+                onChange={(e) => updateField("model", e.target.value)}
               />
             </div>
 
@@ -246,18 +269,14 @@ export function ProductEditor({ product }: ProductEditorProps) {
                 className={inputClass}
                 placeholder="Part Type e.g. Display"
                 value={form.partType}
-                onChange={(e) =>
-                  updateField("partType", e.target.value)
-                }
+                onChange={(e) => updateField("partType", e.target.value)}
               />
 
               <input
                 className={inputClass}
                 placeholder="Quality e.g. Premium"
                 value={form.quality}
-                onChange={(e) =>
-                  updateField("quality", e.target.value)
-                }
+                onChange={(e) => updateField("quality", e.target.value)}
               />
             </div>
 
@@ -265,23 +284,19 @@ export function ProductEditor({ product }: ProductEditorProps) {
               className={inputClass}
               placeholder="Version"
               value={form.version}
-              onChange={(e) =>
-                updateField("version", e.target.value)
-              }
+              onChange={(e) => updateField("version", e.target.value)}
             />
 
             <textarea
               className={`${inputClass} min-h-32`}
               placeholder="Product description"
               value={form.description}
-              onChange={(e) =>
-                updateField("description", e.target.value)
-              }
+              onChange={(e) => updateField("description", e.target.value)}
             />
 
             <input
               className={inputClass}
-              placeholder="Compatibility — comma separated"
+              placeholder="Compatibility - comma separated"
               value={form.compatibility}
               onChange={(e) =>
                 updateField("compatibility", e.target.value)
@@ -290,11 +305,9 @@ export function ProductEditor({ product }: ProductEditorProps) {
 
             <input
               className={inputClass}
-              placeholder="Features — comma separated"
+              placeholder="Features - comma separated"
               value={form.features}
-              onChange={(e) =>
-                updateField("features", e.target.value)
-              }
+              onChange={(e) => updateField("features", e.target.value)}
             />
           </div>
         </section>
@@ -312,9 +325,7 @@ export function ProductEditor({ product }: ProductEditorProps) {
                 min="0"
                 placeholder="Price"
                 value={form.price}
-                onChange={(e) =>
-                  updateField("price", e.target.value)
-                }
+                onChange={(e) => updateField("price", e.target.value)}
               />
 
               <input
@@ -347,27 +358,21 @@ export function ProductEditor({ product }: ProductEditorProps) {
               className={inputClass}
               placeholder="Image URL"
               value={form.imageUrl}
-              onChange={(e) =>
-                updateField("imageUrl", e.target.value)
-              }
+              onChange={(e) => updateField("imageUrl", e.target.value)}
             />
 
             <input
               className={inputClass}
               placeholder="Image alt text"
               value={form.imageAlt}
-              onChange={(e) =>
-                updateField("imageAlt", e.target.value)
-              }
+              onChange={(e) => updateField("imageAlt", e.target.value)}
             />
 
             <textarea
               className={`${inputClass} min-h-24`}
               placeholder="Warranty information"
               value={form.warranty}
-              onChange={(e) =>
-                updateField("warranty", e.target.value)
-              }
+              onChange={(e) => updateField("warranty", e.target.value)}
             />
 
             <textarea
@@ -375,10 +380,7 @@ export function ProductEditor({ product }: ProductEditorProps) {
               placeholder="Replacement information"
               value={form.replacementInformation}
               onChange={(e) =>
-                updateField(
-                  "replacementInformation",
-                  e.target.value,
-                )
+                updateField("replacementInformation", e.target.value)
               }
             />
           </div>
@@ -395,9 +397,7 @@ export function ProductEditor({ product }: ProductEditorProps) {
             className={inputClass}
             placeholder="SEO title"
             value={form.seoTitle}
-            onChange={(e) =>
-              updateField("seoTitle", e.target.value)
-            }
+            onChange={(e) => updateField("seoTitle", e.target.value)}
           />
 
           <textarea
@@ -414,30 +414,15 @@ export function ProductEditor({ product }: ProductEditorProps) {
       <div className="flex flex-wrap items-center gap-3">
         <button
           type="submit"
-          className="rounded-xl bg-rose-600 px-6 py-3 text-sm font-bold text-white transition hover:bg-rose-700"
+          disabled={loading || categories.length === 0}
+          className="rounded-xl bg-rose-600 px-6 py-3 text-sm font-bold text-white transition hover:bg-rose-700 disabled:cursor-not-allowed disabled:opacity-50"
         >
-          {product ? "Update Product" : "Create Product"}
+          {loading
+            ? "Saving..."
+            : product
+              ? "Update Product"
+              : "Create Product"}
         </button>
-
-        {product && (
-          <>
-            <button
-              type="button"
-              onClick={handleToggleStatus}
-              className="rounded-xl border border-slate-200 bg-white px-6 py-3 text-sm font-bold text-slate-700 hover:bg-slate-50"
-            >
-              Toggle Status
-            </button>
-
-            <button
-              type="button"
-              onClick={handleDelete}
-              className="rounded-xl border border-red-200 bg-red-50 px-6 py-3 text-sm font-bold text-red-600 hover:bg-red-100"
-            >
-              Delete
-            </button>
-          </>
-        )}
 
         {message && (
           <span className="text-sm font-semibold text-slate-600">

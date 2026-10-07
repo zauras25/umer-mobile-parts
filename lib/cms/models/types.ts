@@ -25,23 +25,6 @@ export type CmsPage = {
   updatedAt: string;
 };
 
-export type CmsProduct = {
-  id: string;
-  name: string;
-  slug: string;
-  sku: string;
-  description: string;
-  brand: string;
-  model: string;
-  partType: string;
-  quality: string;
-  compatibility: string;
-  features: string[];
-  images: string[];
-  replacementInformation: string;
-  seoTitle: string;
-  seoDescription: string;
-};
 
 export type CmsBanner = {
   id: string;
@@ -92,3 +75,4 @@ export type CmsSeo = {
   description: string;
   keywords: string;
 };
+

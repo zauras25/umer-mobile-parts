@@ -1,7 +1,7 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 
-import { productRepository } from "@/lib/cms/repositories/product-repository";
 import { ProductActions } from "@/components/admin/products/ProductActions";
+import { productRepository } from "@/lib/cms/repositories/product-repository";
 
 export default async function AdminProductsPage() {
   const products = await productRepository.getAll();
@@ -10,12 +10,8 @@ export default async function AdminProductsPage() {
     <main className="space-y-6">
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
         <div>
-          <p className="text-sm font-semibold text-rose-600">
-            CMS
-          </p>
-          <h1 className="text-3xl font-black text-slate-900">
-            Products
-          </h1>
+          <p className="text-sm font-semibold text-rose-600">CMS</p>
+          <h1 className="text-3xl font-black text-slate-900">Products</h1>
           <p className="mt-1 text-sm text-slate-500">
             Manage product content, pricing, versions, media and SEO.
           </p>
@@ -23,7 +19,7 @@ export default async function AdminProductsPage() {
 
         <Link
           href="/admin/products/new"
-          className="inline-flex items-center justify-center rounded-xl bg-rose-600 px-5 py-3 text-sm font-bold text-white hover:bg-rose-700"
+          className="inline-flex items-center justify-center rounded-xl bg-rose-600 px-5 py-3 text-sm font-bold text-white transition hover:bg-rose-700"
         >
           + Add Product
         </Link>
@@ -34,27 +30,14 @@ export default async function AdminProductsPage() {
           <table className="min-w-full text-left text-sm">
             <thead className="border-b border-slate-200 bg-slate-50">
               <tr>
-                <th className="px-5 py-4 font-bold text-slate-700">
-                  Product
-                </th>
-                <th className="px-5 py-4 font-bold text-slate-700">
-                  SKU
-                </th>
-                <th className="px-5 py-4 font-bold text-slate-700">
-                  Brand / Model
-                </th>
-                <th className="px-5 py-4 font-bold text-slate-700">
-                  Quality
-                </th>
-                <th className="px-5 py-4 font-bold text-slate-700">
-                  Price
-                </th>
-                <th className="px-5 py-4 font-bold text-slate-700">
-                  Status
-                </th>
-                <th className="px-5 py-4 text-right font-bold text-slate-700">
-                  Action
-                </th>
+                <th className="px-5 py-4 font-bold text-slate-700">Product</th>
+                <th className="px-5 py-4 font-bold text-slate-700">SKU</th>
+                <th className="px-5 py-4 font-bold text-slate-700">Brand / Model</th>
+                <th className="px-5 py-4 font-bold text-slate-700">Category</th>
+                <th className="px-5 py-4 font-bold text-slate-700">Quality</th>
+                <th className="px-5 py-4 font-bold text-slate-700">Price</th>
+                <th className="px-5 py-4 font-bold text-slate-700">Status</th>
+                <th className="px-5 py-4 text-right font-bold text-slate-700">Action</th>
               </tr>
             </thead>
 
@@ -62,7 +45,7 @@ export default async function AdminProductsPage() {
               {products.length === 0 ? (
                 <tr>
                   <td
-                    colSpan={7}
+                    colSpan={8}
                     className="px-5 py-12 text-center text-slate-400"
                   >
                     No products yet. Create your first product.
@@ -70,53 +53,56 @@ export default async function AdminProductsPage() {
                 </tr>
               ) : (
                 products.map((product) => (
-                  <tr
-                    key={product.id}
-                    className="hover:bg-slate-50"
-                  >
+                  <tr key={product.id} className="hover:bg-slate-50">
                     <td className="px-5 py-4">
                       <div className="font-bold text-slate-900">
                         {product.name}
                       </div>
                       <div className="text-xs text-slate-400">
-                        {product.partType}
+                        {product.partType || "-"}
                       </div>
                     </td>
 
                     <td className="px-5 py-4 font-mono text-xs text-slate-500">
-                      {product.sku}
+                      {product.sku || "-"}
                     </td>
 
                     <td className="px-5 py-4">
                       <div className="font-semibold text-slate-700">
-                        {product.brand}
+                        {product.brand || "-"}
                       </div>
                       <div className="text-xs text-slate-400">
-                        {product.model}
+                        {product.model || "-"}
                       </div>
                     </td>
 
                     <td className="px-5 py-4 text-slate-600">
-                      {product.quality || "â€”"}
+                      {product.categoryId || "-"}
                     </td>
 
-                    <td className="px-5 py-4 font-bold text-slate-800">
-                      Rs. {product.price.toLocaleString()}
+                    <td className="px-5 py-4 text-slate-600">
+                      {product.quality || "-"}
+                    </td>
+
+                    <td className="px-5 py-4 font-semibold text-slate-700">
+                      Rs. {Number(product.price || 0).toLocaleString()}
                     </td>
 
                     <td className="px-5 py-4">
                       <span
                         className={
                           product.status === "published"
-                            ? "rounded-full bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-700"
-                            : "rounded-full bg-amber-50 px-3 py-1 text-xs font-bold text-amber-700"
+                            ? "inline-flex rounded-full bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-700"
+                            : "inline-flex rounded-full bg-amber-50 px-3 py-1 text-xs font-bold text-amber-700"
                         }
                       >
-                        {product.status}
+                        {product.status === "published"
+                          ? "Published"
+                          : "Draft"}
                       </span>
                     </td>
 
-                    <td className="px-5 py-4 text-right">
+                    <td className="px-5 py-4">
                       <ProductActions
                         productId={product.id}
                         status={product.status}
@@ -132,3 +118,4 @@ export default async function AdminProductsPage() {
     </main>
   );
 }
+

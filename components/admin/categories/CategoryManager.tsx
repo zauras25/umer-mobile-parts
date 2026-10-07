@@ -1,269 +1,476 @@
 ﻿"use client";
 
-import { useMemo, useState } from "react";
-import type { CmsCategory } from "@/lib/cms/models/types";
-import {
-  CategoryActions,
-  CategoryEditor,
-} from "@/components/admin/categories/CategoryEditor";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 
-type Props = {
-  initialCategories: CmsCategory[];
+import {
+  createCategory,
+  deleteCategory,
+  toggleCategoryStatus,
+  updateCategory,
+} from "@/app/admin/categories/actions/category-actions";
+
+type Category = {
+  id: string;
+  name: string;
+  slug: string;
+  description: string;
+  parentId: string | null;
+  sortOrder: number;
+  status: "active" | "inactive";
+  createdAt: string;
+  updatedAt: string;
 };
 
-export function CategoryManager({
-  initialCategories,
-}: Props) {
-  const [categories] = useState(initialCategories);
-  const [search, setSearch] = useState("");
-  const [status, setStatus] = useState<
-    "all" | "active" | "inactive"
-  >("all");
-  const [editorOpen, setEditorOpen] = useState(false);
-  const [editingCategory, setEditingCategory] =
-    useState<CmsCategory | null>(null);
+type Props = {
+  initialCategories: Category[];
+};
 
-  const filteredCategories = useMemo(() => {
-    const query = search.trim().toLowerCase();
+const emptyForm = {
+  name: "",
+  slug: "",
+  description: "",
+  parentId: "",
+  sortOrder: "0",
+  status: "active" as "active" | "inactive",
+};
 
-    return categories.filter((category) => {
-      const matchesSearch =
-        !query ||
-        category.name.toLowerCase().includes(query) ||
-        category.slug.toLowerCase().includes(query);
+export function CategoryManager({ initialCategories }: Props) {
+  const router = useRouter();
 
-      const matchesStatus =
-        status === "all" || category.status === status;
+  const [categories, setCategories] = useState(initialCategories);
+  const [form, setForm] = useState(emptyForm);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false);
 
-      return matchesSearch && matchesStatus;
+  function updateField(field: keyof typeof form, value: string) {
+    setForm((current) => ({
+      ...current,
+      [field]: value,
+    }));
+  }
+
+  function resetForm() {
+    setForm(emptyForm);
+    setEditingId(null);
+    setMessage("");
+  }
+
+  function startEdit(category: Category) {
+    setEditingId(category.id);
+
+    setForm({
+      name: category.name,
+      slug: category.slug,
+      description: category.description,
+      parentId: category.parentId ?? "",
+      sortOrder: String(category.sortOrder),
+      status: category.status,
     });
-  }, [categories, search, status]);
 
-  function openCreate() {
-    setEditingCategory(null);
-    setEditorOpen(true);
+    setMessage("");
+
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
   }
 
-  function openEdit(category: CmsCategory) {
-    setEditingCategory(category);
-    setEditorOpen(true);
+  async function handleSubmit(event: React.FormEvent) {
+    event.preventDefault();
+
+    setLoading(true);
+    setMessage("");
+
+    const input = {
+      name: form.name,
+      slug: form.slug,
+      description: form.description,
+      parentId: form.parentId || null,
+      sortOrder: Number(form.sortOrder) || 0,
+      status: form.status,
+    };
+
+    try {
+      if (editingId) {
+        const updated = await updateCategory(editingId, input);
+
+        setCategories((current) =>
+          current.map((category) =>
+            category.id === editingId ? updated : category,
+          ),
+        );
+
+        setMessage("Category updated successfully.");
+      } else {
+        const created = await createCategory(input);
+
+        setCategories((current) =>
+          [...current, created].sort(
+            (a, b) => a.sortOrder - b.sortOrder,
+          ),
+        );
+
+        setMessage("Category created successfully.");
+      }
+
+      setForm(emptyForm);
+      setEditingId(null);
+      router.refresh();
+    } catch (error) {
+      setMessage(
+        error instanceof Error
+          ? error.message
+          : "Unable to save category.",
+      );
+    } finally {
+      setLoading(false);
+    }
   }
 
-  function getParentName(parentId: string | null) {
-    if (!parentId) {
-      return "Top Level";
+  async function handleDelete(id: string) {
+    const confirmed = window.confirm(
+      "Are you sure you want to delete this category?",
+    );
+
+    if (!confirmed) {
+      return;
     }
 
-    return (
-      categories.find((category) => category.id === parentId)?.name ??
-      "Unknown"
-    );
+    setLoading(true);
+    setMessage("");
+
+    try {
+      await deleteCategory(id);
+
+      setCategories((current) =>
+        current.filter((category) => category.id !== id),
+      );
+
+      if (editingId === id) {
+        setForm(emptyForm);
+        setEditingId(null);
+      }
+
+      setMessage("Category deleted successfully.");
+      router.refresh();
+    } catch (error) {
+      setMessage(
+        error instanceof Error
+          ? error.message
+          : "Unable to delete category.",
+      );
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function handleToggle(id: string) {
+    setLoading(true);
+    setMessage("");
+
+    try {
+      const updated = await toggleCategoryStatus(id);
+
+      setCategories((current) =>
+        current.map((category) =>
+          category.id === id ? updated : category,
+        ),
+      );
+
+      setMessage(
+        updated.status === "active"
+          ? "Category activated."
+          : "Category moved to inactive.",
+      );
+
+      router.refresh();
+    } catch (error) {
+      setMessage(
+        error instanceof Error
+          ? error.message
+          : "Unable to update category.",
+      );
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
-    <>
-      <div className="space-y-6">
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-          <div>
-            <p className="text-xs font-extrabold uppercase tracking-widest text-rose-600">
-              Content Management
-            </p>
+    <div className="mx-auto max-w-6xl">
+      <div className="mb-8">
+        <p className="text-xs font-extrabold uppercase tracking-[0.18em] text-rose-600">
+          CMS / Categories
+        </p>
 
-            <h1 className="mt-1 text-3xl font-black tracking-tight text-slate-900">
-              Categories
+        <div className="mt-2 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+          <div>
+            <h1 className="text-3xl font-black text-slate-950">
+              Product Categories
             </h1>
 
-            <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500">
-              Manage the product category structure used across
-              the Umar Mobile Parts catalogue.
+            <p className="mt-2 text-sm text-slate-500">
+              Create and manage the categories used throughout the
+              product catalogue.
             </p>
           </div>
 
-          <button
-            type="button"
-            onClick={openCreate}
-            className="rounded-xl bg-rose-600 px-5 py-3 text-sm font-extrabold text-white shadow-lg shadow-rose-200 transition hover:bg-rose-700"
-          >
-            + Add Category
-          </button>
-        </div>
-
-        <div className="grid gap-4 sm:grid-cols-3">
-          <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-card">
-            <p className="text-xs font-bold uppercase tracking-wider text-slate-400">
-              Total
-            </p>
-            <p className="mt-2 text-3xl font-black text-slate-900">
-              {categories.length}
-            </p>
-          </div>
-
-          <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-card">
-            <p className="text-xs font-bold uppercase tracking-wider text-slate-400">
-              Active
-            </p>
-            <p className="mt-2 text-3xl font-black text-emerald-600">
-              {
-                categories.filter(
-                  (category) => category.status === "active"
-                ).length
-              }
-            </p>
-          </div>
-
-          <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-card">
-            <p className="text-xs font-bold uppercase tracking-wider text-slate-400">
-              Inactive
-            </p>
-            <p className="mt-2 text-3xl font-black text-amber-600">
-              {
-                categories.filter(
-                  (category) => category.status === "inactive"
-                ).length
-              }
-            </p>
-          </div>
-        </div>
-
-        <div className="flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-card md:flex-row">
-          <input
-            value={search}
-            onChange={(event) => setSearch(event.target.value)}
-            placeholder="Search category by name or slug..."
-            className="min-w-0 flex-1 rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-rose-500 focus:ring-4 focus:ring-rose-100"
-          />
-
-          <select
-            value={status}
-            onChange={(event) =>
-              setStatus(
-                event.target.value as
-                  | "all"
-                  | "active"
-                  | "inactive"
-              )
-            }
-            className="rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-bold text-slate-700 outline-none focus:border-rose-500"
-          >
-            <option value="all">All Status</option>
-            <option value="active">Active</option>
-            <option value="inactive">Inactive</option>
-          </select>
-        </div>
-
-        <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-card">
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[900px] text-left">
-              <thead>
-                <tr className="border-b border-slate-200 bg-slate-50">
-                  <th className="px-5 py-4 text-xs font-extrabold uppercase tracking-wider text-slate-500">
-                    Category
-                  </th>
-
-                  <th className="px-5 py-4 text-xs font-extrabold uppercase tracking-wider text-slate-500">
-                    Parent
-                  </th>
-
-                  <th className="px-5 py-4 text-xs font-extrabold uppercase tracking-wider text-slate-500">
-                    Order
-                  </th>
-
-                  <th className="px-5 py-4 text-xs font-extrabold uppercase tracking-wider text-slate-500">
-                    Status
-                  </th>
-
-                  <th className="px-5 py-4 text-right text-xs font-extrabold uppercase tracking-wider text-slate-500">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-
-              <tbody>
-                {filteredCategories.length > 0 ? (
-                  filteredCategories.map((category) => (
-                    <tr
-                      key={category.id}
-                      className="border-b border-slate-100 last:border-0 hover:bg-slate-50/70"
-                    >
-                      <td className="px-5 py-5">
-                        <p className="font-extrabold text-slate-800">
-                          {category.name}
-                        </p>
-
-                        <div className="mt-1 flex flex-wrap items-center gap-2">
-                          <code className="rounded-md bg-slate-100 px-2 py-1 text-xs text-slate-500">
-                            {category.slug}
-                          </code>
-
-                          {category.description && (
-                            <span className="max-w-sm truncate text-xs text-slate-400">
-                              {category.description}
-                            </span>
-                          )}
-                        </div>
-                      </td>
-
-                      <td className="px-5 py-5 text-sm font-semibold text-slate-500">
-                        {getParentName(category.parentId)}
-                      </td>
-
-                      <td className="px-5 py-5">
-                        <span className="inline-flex min-w-9 justify-center rounded-lg bg-slate-100 px-2 py-1 text-xs font-extrabold text-slate-600">
-                          {category.sortOrder}
-                        </span>
-                      </td>
-
-                      <td className="px-5 py-5">
-                        <span
-                          className={
-                            category.status === "active"
-                              ? "inline-flex rounded-full bg-emerald-50 px-3 py-1 text-xs font-extrabold text-emerald-700"
-                              : "inline-flex rounded-full bg-amber-50 px-3 py-1 text-xs font-extrabold text-amber-700"
-                          }
-                        >
-                          {category.status === "active"
-                            ? "Active"
-                            : "Inactive"}
-                        </span>
-                      </td>
-
-                      <td className="px-5 py-5">
-                        <CategoryActions
-                          category={category}
-                          onEdit={openEdit}
-                        />
-                      </td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td
-                      colSpan={5}
-                      className="px-5 py-16 text-center"
-                    >
-                      <p className="font-extrabold text-slate-700">
-                        No categories found
-                      </p>
-
-                      <p className="mt-1 text-sm text-slate-400">
-                        Try another search or create a new category.
-                      </p>
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
+          {editingId && (
+            <button
+              type="button"
+              onClick={resetForm}
+              disabled={loading}
+              className="rounded-xl border border-slate-200 bg-white px-5 py-3 text-sm font-bold text-slate-700 hover:bg-slate-50 disabled:opacity-50"
+            >
+              Cancel Edit
+            </button>
+          )}
         </div>
       </div>
 
-      {editorOpen && (
-        <CategoryEditor
-          category={editingCategory}
-          categories={categories}
-          onClose={() => setEditorOpen(false)}
-        />
-      )}
-    </>
+      <form
+        onSubmit={handleSubmit}
+        className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm"
+      >
+        <h2 className="text-lg font-extrabold text-slate-950">
+          {editingId ? "Edit Category" : "Add Category"}
+        </h2>
+
+        <div className="mt-6 grid gap-5 sm:grid-cols-2">
+          <div>
+            <label className="mb-2 block text-sm font-bold text-slate-700">
+              Category Name
+            </label>
+
+            <input
+              value={form.name}
+              onChange={(event) =>
+                updateField("name", event.target.value)
+              }
+              placeholder="Displays / Panels"
+              required
+              className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-rose-500"
+            />
+          </div>
+
+          <div>
+            <label className="mb-2 block text-sm font-bold text-slate-700">
+              Slug
+            </label>
+
+            <input
+              value={form.slug}
+              onChange={(event) =>
+                updateField("slug", event.target.value)
+              }
+              placeholder="displays-panels"
+              required
+              className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-rose-500"
+            />
+          </div>
+
+          <div className="sm:col-span-2">
+            <label className="mb-2 block text-sm font-bold text-slate-700">
+              Description
+            </label>
+
+            <textarea
+              value={form.description}
+              onChange={(event) =>
+                updateField("description", event.target.value)
+              }
+              placeholder="Mobile LCD, LED and display panels."
+              rows={3}
+              className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-rose-500"
+            />
+          </div>
+
+          <div>
+            <label className="mb-2 block text-sm font-bold text-slate-700">
+              Parent Category
+            </label>
+
+            <select
+              value={form.parentId}
+              onChange={(event) =>
+                updateField("parentId", event.target.value)
+              }
+              className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none focus:border-rose-500"
+            >
+              <option value="">No parent category</option>
+
+              {categories
+                .filter((category) => category.id !== editingId)
+                .map((category) => (
+                  <option key={category.id} value={category.id}>
+                    {category.name}
+                  </option>
+                ))}
+            </select>
+          </div>
+
+          <div>
+            <label className="mb-2 block text-sm font-bold text-slate-700">
+              Display Order
+            </label>
+
+            <input
+              type="number"
+              min="0"
+              value={form.sortOrder}
+              onChange={(event) =>
+                updateField("sortOrder", event.target.value)
+              }
+              className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-rose-500"
+            />
+          </div>
+
+          <div>
+            <label className="mb-2 block text-sm font-bold text-slate-700">
+              Status
+            </label>
+
+            <select
+              value={form.status}
+              onChange={(event) =>
+                updateField(
+                  "status",
+                  event.target.value as "active" | "inactive",
+                )
+              }
+              className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none focus:border-rose-500"
+            >
+              <option value="active">Active</option>
+              <option value="inactive">Inactive</option>
+            </select>
+          </div>
+        </div>
+
+        <div className="mt-6 flex flex-wrap items-center gap-3">
+          <button
+            type="submit"
+            disabled={loading}
+            className="rounded-xl bg-rose-600 px-6 py-3 text-sm font-bold text-white hover:bg-rose-700 disabled:opacity-50"
+          >
+            {loading
+              ? "Saving..."
+              : editingId
+                ? "Update Category"
+                : "Add Category"}
+          </button>
+
+          {editingId && (
+            <button
+              type="button"
+              onClick={resetForm}
+              disabled={loading}
+              className="rounded-xl border border-slate-200 bg-white px-6 py-3 text-sm font-bold text-slate-700 hover:bg-slate-50 disabled:opacity-50"
+            >
+              Cancel
+            </button>
+          )}
+
+          {message && (
+            <span className="text-sm font-semibold text-slate-600">
+              {message}
+            </span>
+          )}
+        </div>
+      </form>
+
+      <section className="mt-8 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+        <div className="border-b border-slate-100 px-6 py-5">
+          <h2 className="text-lg font-extrabold text-slate-950">
+            Categories
+          </h2>
+
+          <p className="mt-1 text-sm text-slate-500">
+            {categories.length}{" "}
+            {categories.length === 1 ? "category" : "categories"} configured.
+          </p>
+        </div>
+
+        {categories.length === 0 ? (
+          <div className="px-6 py-12 text-center">
+            <p className="font-bold text-slate-900">
+              No categories yet.
+            </p>
+
+            <p className="mt-2 text-sm text-slate-500">
+              Add your first product category above.
+            </p>
+          </div>
+        ) : (
+          <div className="divide-y divide-slate-100">
+            {categories.map((category) => (
+              <div
+                key={category.id}
+                className="flex flex-col gap-4 px-6 py-5 lg:flex-row lg:items-center lg:justify-between"
+              >
+                <div>
+                  <div className="flex flex-wrap items-center gap-3">
+                    <h3 className="font-bold text-slate-950">
+                      {category.name}
+                    </h3>
+
+                    <span
+                      className={`rounded-full px-2.5 py-1 text-xs font-bold ${
+                        category.status === "active"
+                          ? "bg-emerald-50 text-emerald-700"
+                          : "bg-slate-100 text-slate-500"
+                      }`}
+                    >
+                      {category.status}
+                    </span>
+                  </div>
+
+                  <p className="mt-1 text-xs text-slate-400">
+                    /{category.slug} · Order {category.sortOrder}
+                  </p>
+
+                  {category.description && (
+                    <p className="mt-2 max-w-2xl text-sm text-slate-500">
+                      {category.description}
+                    </p>
+                  )}
+                </div>
+
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    onClick={() => startEdit(category)}
+                    disabled={loading}
+                    className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-bold text-slate-700 hover:bg-slate-50 disabled:opacity-50"
+                  >
+                    Edit
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => handleToggle(category.id)}
+                    disabled={loading}
+                    className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-bold text-slate-700 hover:bg-slate-50 disabled:opacity-50"
+                  >
+                    {category.status === "active"
+                      ? "Set Inactive"
+                      : "Set Active"}
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => handleDelete(category.id)}
+                    disabled={loading}
+                    className="rounded-lg border border-red-200 bg-red-50 px-4 py-2 text-sm font-bold text-red-600 hover:bg-red-100 disabled:opacity-50"
+                  >
+                    Delete
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
+    </div>
   );
 }

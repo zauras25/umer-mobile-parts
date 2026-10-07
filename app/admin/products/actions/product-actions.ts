@@ -1,4 +1,4 @@
-"use server";
+﻿"use server";
 
 import { revalidatePath } from "next/cache";
 
@@ -14,6 +14,7 @@ type ProductInput = {
   name: string;
   slug: string;
   sku: string;
+  categoryId: string;
   brand: string;
   model: string;
   partType: string;
@@ -50,6 +51,10 @@ export async function createProduct(input: ProductInput) {
     return { success: false, error: "SKU is required." };
   }
 
+  if (!input.categoryId.trim()) {
+    return { success: false, error: "Category is required." };
+  }
+
   if (
     cmsProducts.some(
       (product) =>
@@ -64,6 +69,7 @@ export async function createProduct(input: ProductInput) {
     name: input.name.trim(),
     slug: input.slug.trim(),
     sku: input.sku.trim(),
+    categoryId: input.categoryId.trim(),
     brand: input.brand.trim(),
     model: input.model.trim(),
     partType: input.partType.trim(),
@@ -109,6 +115,13 @@ export async function updateProduct(
     };
   }
 
+  if (!input.categoryId.trim()) {
+    return {
+      success: false,
+      error: "Category is required.",
+    };
+  }
+
   const duplicateSku = cmsProducts.some(
     (item) =>
       item.id !== id &&
@@ -125,6 +138,7 @@ export async function updateProduct(
   product.name = input.name.trim();
   product.slug = input.slug.trim();
   product.sku = input.sku.trim();
+  product.categoryId = input.categoryId.trim();
   product.brand = input.brand.trim();
   product.model = input.model.trim();
   product.partType = input.partType.trim();

@@ -1,4 +1,4 @@
-export const SITE_CONFIG = {
+﻿export const SITE_CONFIG = {
   name: "Umar Mobile Parts",
   shortName: "Umar Mobile Parts",
   description:
@@ -6,6 +6,7 @@ export const SITE_CONFIG = {
   country: "Pakistan",
   city: "Lahore",
   currency: "PKR",
+  whatsapp: "923008897768",
 } as const;
 
 export const NAVIGATION = [

@@ -1,4 +1,4 @@
-export type CmsProductStatus = "draft" | "published";
+﻿export type CmsProductStatus = "draft" | "published";
 
 export type CmsProductImage = {
   id: string;
@@ -12,6 +12,7 @@ export type CmsProduct = {
   name: string;
   slug: string;
   sku: string;
+  categoryId: string;
 
   brand: string;
   model: string;

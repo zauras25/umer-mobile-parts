@@ -4,7 +4,6 @@
   CmsFaq,
   CmsPage,
   CmsPolicy,
-  CmsProduct,
   CmsReview,
   CmsSeo,
   CmsTestimonial,
@@ -70,8 +69,6 @@ export const cmsCategories: CmsCategory[] = [
 
 export const cmsPages: CmsPage[] = [];
 
-export const cmsProducts: CmsProduct[] = [];
-
 export const cmsBanners: CmsBanner[] = [];
 
 export const cmsFaqs: CmsFaq[] = [];
@@ -83,3 +80,4 @@ export const cmsTestimonials: CmsTestimonial[] = [];
 export const cmsPolicies: CmsPolicy[] = [];
 
 export const cmsSeo: CmsSeo[] = [];
+

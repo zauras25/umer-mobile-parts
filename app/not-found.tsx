@@ -1,25 +1,26 @@
-﻿import Link from "next/link";
+import Link from "next/link";
 
 export default function NotFound() {
   return (
-    <main className="flex min-h-[70vh] items-center justify-center px-4">
-      <div className="text-center">
-        <p className="text-6xl font-bold text-gray-200">404</p>
+    <main className="container-site flex min-h-[60vh] items-center justify-center py-20">
+      <div className="max-w-md text-center">
+        <p className="text-sm font-bold uppercase tracking-wider text-red-600">
+          404
+        </p>
 
-        <h1 className="mt-4 text-2xl font-bold text-gray-900">
-          Product Not Found
+        <h1 className="mt-3 text-3xl font-bold text-gray-950">
+          Page not found
         </h1>
 
-        <p className="mt-2 text-gray-500">
-          The product you are looking for does not exist or is no longer
-          available.
+        <p className="mt-4 text-gray-600">
+          The page you are looking for does not exist or may have moved.
         </p>
 
         <Link
-          href="/shop"
-          className="mt-6 inline-block rounded-xl bg-black px-6 py-3 font-semibold text-white hover:bg-gray-800"
+          href="/"
+          className="mt-7 inline-flex rounded-lg bg-red-600 px-5 py-3 font-semibold text-white hover:bg-red-700"
         >
-          Back to Shop
+          Back to Home
         </Link>
       </div>
     </main>

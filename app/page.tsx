@@ -1,158 +1,74 @@
-﻿import Link from "next/link";
-import { categories } from "@/data/products";
-import { products } from "@/data/products";
-import ProductCard from "@/components/product/ProductCard";
+import Link from "next/link";
 
-export default function Home() {
-  const featuredProducts = products.slice(0, 4);
-
+export default function HomePage() {
   return (
-    <main className="min-h-screen bg-gray-50">
+    <div>
+      <section className="border-b border-gray-200 bg-gray-50">
+        <div className="container-site py-20 sm:py-28">
+          <div className="max-w-3xl">
+            <p className="text-sm font-semibold uppercase tracking-wider text-red-600">
+              Umar Mobile Parts
+            </p>
 
-      <section className="bg-black px-6 py-16 text-white">
-        <div className="mx-auto max-w-6xl">
+            <h1 className="mt-4 text-4xl font-bold tracking-tight text-gray-950 sm:text-5xl lg:text-6xl">
+              Mobile Spare Parts for Customers & Retailers
+            </h1>
 
-          <p className="text-sm font-medium text-gray-400">
-            Umar Mobile Parts
-          </p>
+            <p className="mt-6 max-w-2xl text-base leading-7 text-gray-600 sm:text-lg">
+              A professional platform for finding mobile spare parts,
+              comparing available qualities, and purchasing across Pakistan.
+            </p>
 
-          <h1 className="mt-3 max-w-3xl text-4xl font-bold tracking-tight sm:text-5xl">
-            Mobile Parts & Accessories
-          </h1>
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+              <Link
+                href="/shop"
+                className="inline-flex items-center justify-center rounded-lg bg-red-600 px-6 py-3 font-semibold text-white transition hover:bg-red-700"
+              >
+                Shop Spare Parts
+              </Link>
 
-          <p className="mt-5 max-w-2xl text-base leading-7 text-gray-300">
-            Find reliable mobile spare parts and accessories for repair,
-            retail, and wholesale purchasing.
-          </p>
-
-          <div className="mt-8 flex flex-wrap gap-3">
-            <Link
-              href="/shop"
-              className="rounded-lg bg-white px-6 py-3 text-sm font-semibold text-black"
-            >
-              Browse Shop
-            </Link>
-
-            <Link
-              href="/categories"
-              className="rounded-lg border border-white/30 px-6 py-3 text-sm font-semibold text-white"
-            >
-              View Categories
-            </Link>
+              <Link
+                href="/retailer"
+                className="inline-flex items-center justify-center rounded-lg border border-gray-300 bg-white px-6 py-3 font-semibold text-gray-800 transition hover:border-red-600 hover:text-red-600"
+              >
+                Become a Retailer
+              </Link>
+            </div>
           </div>
-
         </div>
       </section>
 
-      <section className="mx-auto max-w-6xl px-6 py-12">
-
-        <div className="flex items-end justify-between gap-4">
-          <div>
-            <p className="text-sm font-medium text-gray-500">
-              Shop by category
-            </p>
-
-            <h2 className="mt-1 text-2xl font-bold text-gray-900">
-              Mobile Parts Categories
-            </h2>
-          </div>
-
-          <Link
-            href="/categories"
-            className="text-sm font-medium text-gray-700 hover:text-black"
-          >
-            View all →
-          </Link>
-        </div>
-
-        <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {categories.slice(0, 8).map((category) => (
-            <Link
-              key={category}
-              href={`/shop?category=${encodeURIComponent(category)}`}
-              className="rounded-xl border bg-white p-5 transition hover:border-black"
+      <section className="container-site py-16">
+        <div className="grid gap-6 md:grid-cols-3">
+          {[
+            {
+              title: "Wide Product Catalogue",
+              text: "A scalable catalogue structure for brands, models, parts and quality versions.",
+            },
+            {
+              title: "Retail & Wholesale",
+              text: "Separate customer and approved retailer experiences built into the architecture.",
+            },
+            {
+              title: "Pakistan-wide",
+              text: "Designed for delivery, pickup and future nationwide commerce operations.",
+            },
+          ].map((item) => (
+            <article
+              key={item.title}
+              className="rounded-xl border border-gray-200 bg-white p-6"
             >
-              <h3 className="font-semibold text-gray-900">
-                {category}
-              </h3>
+              <h2 className="text-lg font-semibold text-gray-950">
+                {item.title}
+              </h2>
 
-              <p className="mt-2 text-sm text-gray-500">
-                Browse products →
+              <p className="mt-3 text-sm leading-6 text-gray-600">
+                {item.text}
               </p>
-            </Link>
+            </article>
           ))}
         </div>
-
       </section>
-
-      <section className="mx-auto max-w-6xl px-6 pb-12">
-
-        <div className="flex items-end justify-between gap-4">
-          <div>
-            <p className="text-sm font-medium text-gray-500">
-              Featured products
-            </p>
-
-            <h2 className="mt-1 text-2xl font-bold text-gray-900">
-              Popular Parts
-            </h2>
-          </div>
-
-          <Link
-            href="/shop"
-            className="text-sm font-medium text-gray-700 hover:text-black"
-          >
-            View shop →
-          </Link>
-        </div>
-
-        <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {featuredProducts.map((product) => (
-            <ProductCard key={product.id} product={product} />
-          ))}
-        </div>
-
-      </section>
-
-      <section className="mx-auto max-w-6xl px-6 pb-12">
-
-        <div className="grid gap-4 md:grid-cols-3">
-
-          <div className="rounded-xl border bg-white p-6">
-            <h3 className="font-semibold text-gray-900">
-              Quality Products
-            </h3>
-
-            <p className="mt-2 text-sm leading-6 text-gray-500">
-              Browse products with clearly defined quality and compatibility
-              information.
-            </p>
-          </div>
-
-          <div className="rounded-xl border bg-white p-6">
-            <h3 className="font-semibold text-gray-900">
-              Retailer Support
-            </h3>
-
-            <p className="mt-2 text-sm leading-6 text-gray-500">
-              Approved retailers can access wholesale purchasing benefits.
-            </p>
-          </div>
-
-          <div className="rounded-xl border bg-white p-6">
-            <h3 className="font-semibold text-gray-900">
-              Order Assistance
-            </h3>
-
-            <p className="mt-2 text-sm leading-6 text-gray-500">
-              Track orders and get support when you need help.
-            </p>
-          </div>
-
-        </div>
-
-      </section>
-
-    </main>
+    </div>
   );
 }

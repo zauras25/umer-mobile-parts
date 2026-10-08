@@ -16,8 +16,10 @@ function validate(input: CategoryInput) {
     throw new Error("Category slug is required.");
   }
 
-  if (input.sortOrder < 0) {
-    throw new Error("Sort order cannot be negative.");
+  if (!Number.isInteger(input.sortOrder) || input.sortOrder < 0) {
+    throw new Error(
+      "Sort order must be a whole number and cannot be negative.",
+    );
   }
 }
 
@@ -29,22 +31,27 @@ function refreshCategories() {
 }
 
 export async function createCategory(input: CategoryInput) {
-  validate(input);
+  const normalizedInput: CategoryInput = {
+    ...input,
+    name: input.name.trim(),
+    slug: input.slug.trim().toLowerCase(),
+    description: input.description.trim(),
+    parentId: input.parentId || null,
+    sortOrder: Number(input.sortOrder),
+  };
+
+  validate(normalizedInput);
 
   const existing = await categoryRepository.getBySlug(
-    input.slug.trim().toLowerCase(),
+    normalizedInput.slug,
   );
 
   if (existing) {
     throw new Error("A category with this slug already exists.");
   }
 
-  const category = await categoryRepository.create({
-    ...input,
-    name: input.name.trim(),
-    slug: input.slug.trim().toLowerCase(),
-    description: input.description.trim(),
-  });
+  const category =
+    await categoryRepository.create(normalizedInput);
 
   refreshCategories();
 
@@ -55,22 +62,34 @@ export async function updateCategory(
   id: string,
   input: CategoryInput,
 ) {
-  validate(input);
+  const normalizedInput: CategoryInput = {
+    ...input,
+    name: input.name.trim(),
+    slug: input.slug.trim().toLowerCase(),
+    description: input.description.trim(),
+    parentId: input.parentId || null,
+    sortOrder: Number(input.sortOrder),
+  };
+
+  validate(normalizedInput);
+
+  if (
+    normalizedInput.parentId &&
+    normalizedInput.parentId === id
+  ) {
+    throw new Error("A category cannot be its own parent.");
+  }
 
   const existing = await categoryRepository.getBySlug(
-    input.slug.trim().toLowerCase(),
+    normalizedInput.slug,
   );
 
   if (existing && existing.id !== id) {
     throw new Error("A category with this slug already exists.");
   }
 
-  const category = await categoryRepository.update(id, {
-    ...input,
-    name: input.name.trim(),
-    slug: input.slug.trim().toLowerCase(),
-    description: input.description.trim(),
-  });
+  const category =
+    await categoryRepository.update(id, normalizedInput);
 
   refreshCategories();
 
@@ -86,7 +105,8 @@ export async function deleteCategory(id: string) {
 }
 
 export async function toggleCategoryStatus(id: string) {
-  const category = await categoryRepository.toggleStatus(id);
+  const category =
+    await categoryRepository.toggleStatus(id);
 
   refreshCategories();
 

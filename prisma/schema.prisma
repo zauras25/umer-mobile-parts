@@ -92,3 +92,22 @@ model ProductFeature {
 
   createdAt  TimestamptzString @default(now())
 }
+
+enum CmsPageStatus {
+  draft
+  published
+}
+
+model CmsPage {
+  id              String        @id
+  title           String
+  slug            String        @unique
+  excerpt         String?
+  content         String
+  status          CmsPageStatus @default(draft)
+  seoTitle        String?
+  seoDescription  String?
+
+  createdAt       TimestamptzString @default(now())
+  updatedAt       temporal.updatedAtString()
+}

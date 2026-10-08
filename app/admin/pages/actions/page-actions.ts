@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 
 import type { CmsPage } from "@/lib/cms/models/types";
-import { cmsPages } from "@/lib/cms/data/store";
+import { pageRepository } from "@/lib/cms/repositories/page-repository";
 
 type PageInput = {
   title: string;
@@ -15,34 +15,86 @@ type PageInput = {
   seoDescription: string;
 };
 
+function normalizeSlug(slug: string) {
+  const value = slug.trim();
+
+  if (!value) {
+    throw new Error("Slug is required.");
+  }
+
+  return value.startsWith("/") ? value : `/${value}`;
+}
+
+function validateInput(input: PageInput) {
+  const title = input.title.trim();
+  const slug = normalizeSlug(input.slug);
+  const content = input.content.trim();
+
+  if (!title) {
+    throw new Error("Page title is required.");
+  }
+
+  if (!content) {
+    throw new Error("Page content is required.");
+  }
+
+  return {
+    title,
+    slug,
+    excerpt: input.excerpt.trim(),
+    content,
+    status: input.status,
+    seoTitle: input.seoTitle.trim(),
+    seoDescription: input.seoDescription.trim(),
+  };
+}
+
 export async function createPage(input: PageInput) {
+  const data = validateInput(input);
+
+  const existing = await pageRepository.getBySlug(data.slug);
+
+  if (existing) {
+    throw new Error(`A page already exists with slug "${data.slug}".`);
+  }
+
   const now = new Date().toISOString();
 
-  const page: CmsPage = {
+  const page = await pageRepository.create({
     id: crypto.randomUUID(),
-    title: input.title,
-    slug: input.slug,
-    excerpt: input.excerpt,
-    content: input.content,
-    status: input.status,
-    seoTitle: input.seoTitle,
-    seoDescription: input.seoDescription,
-    createdAt: now,
-    updatedAt: now,
-  };
-
-  cmsPages.push(page);
+    ...data,
+  });
 
   revalidatePath("/admin/pages");
+  revalidatePath(data.slug);
+  revalidatePath("/[slug]", "page");
 
   return {
     success: true,
     page,
+    now,
   };
 }
 
 export async function updatePage(id: string, input: PageInput) {
-  const page = cmsPages.find((item) => item.id === id);
+  const data = validateInput(input);
+
+  const existing = await pageRepository.getById(id);
+
+  if (!existing) {
+    return {
+      success: false,
+      error: "Page not found",
+    };
+  }
+
+  const pageWithSlug = await pageRepository.getBySlug(data.slug);
+
+  if (pageWithSlug && pageWithSlug.id !== id) {
+    throw new Error(`A page already exists with slug "${data.slug}".`);
+  }
+
+  const page = await pageRepository.update(id, data);
 
   if (!page) {
     return {
@@ -51,16 +103,10 @@ export async function updatePage(id: string, input: PageInput) {
     };
   }
 
-  page.title = input.title;
-  page.slug = input.slug;
-  page.excerpt = input.excerpt;
-  page.content = input.content;
-  page.status = input.status;
-  page.seoTitle = input.seoTitle;
-  page.seoDescription = input.seoDescription;
-  page.updatedAt = new Date().toISOString();
-
   revalidatePath("/admin/pages");
+  revalidatePath(existing.slug);
+  revalidatePath(data.slug);
+  revalidatePath("/[slug]", "page");
 
   return {
     success: true,
@@ -69,18 +115,27 @@ export async function updatePage(id: string, input: PageInput) {
 }
 
 export async function deletePage(id: string) {
-  const index = cmsPages.findIndex((item) => item.id === id);
+  const existing = await pageRepository.getById(id);
 
-  if (index === -1) {
+  if (!existing) {
     return {
       success: false,
       error: "Page not found",
     };
   }
 
-  cmsPages.splice(index, 1);
+  const deleted = await pageRepository.delete(id);
+
+  if (!deleted) {
+    return {
+      success: false,
+      error: "Unable to delete page",
+    };
+  }
 
   revalidatePath("/admin/pages");
+  revalidatePath(existing.slug);
+  revalidatePath("/[slug]", "page");
 
   return {
     success: true,
@@ -88,7 +143,18 @@ export async function deletePage(id: string) {
 }
 
 export async function togglePageStatus(id: string) {
-  const page = cmsPages.find((item) => item.id === id);
+  const existing = await pageRepository.getById(id);
+
+  if (!existing) {
+    return {
+      success: false,
+      error: "Page not found",
+    };
+  }
+
+  const page = await pageRepository.update(id, {
+    status: existing.status === "published" ? "draft" : "published",
+  });
 
   if (!page) {
     return {
@@ -97,10 +163,9 @@ export async function togglePageStatus(id: string) {
     };
   }
 
-  page.status = page.status === "published" ? "draft" : "published";
-  page.updatedAt = new Date().toISOString();
-
   revalidatePath("/admin/pages");
+  revalidatePath(existing.slug);
+  revalidatePath("/[slug]", "page");
 
   return {
     success: true,

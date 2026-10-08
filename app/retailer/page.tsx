@@ -1,28 +1,35 @@
-import Link from "next/link";
+﻿import { notFound } from "next/navigation";
 
-export default function Page() {
+import { pageRepository } from "@/lib/cms/repositories/page-repository";
+
+export default async function RetailerPage() {
+  const page = await pageRepository.getBySlug("/retailer");
+
+  if (!page || page.status !== "published") {
+    notFound();
+  }
+
   return (
-    <main className="container-site py-20">
-      <p className="text-sm font-semibold uppercase tracking-wider text-red-600">
-        Umar Mobile Parts
-      </p>
+    <main className="container-site py-16">
+      <div className="max-w-4xl">
+        <p className="text-sm font-semibold uppercase tracking-wider text-red-600">
+          Umar Mobile Parts
+        </p>
 
-      <h1 className="mt-3 text-3xl font-bold text-gray-950">
-        
-      </h1>
+        <h1 className="mt-3 text-3xl font-bold text-gray-950 sm:text-4xl">
+          {page.title}
+        </h1>
 
-      <p className="mt-4 max-w-xl text-gray-600">
-        This route is part of the application foundation. Its full module
-        functionality will be implemented according to the Master Development
-        Specification.
-      </p>
+        {page.excerpt && (
+          <p className="mt-4 text-lg leading-8 text-gray-600">
+            {page.excerpt}
+          </p>
+        )}
 
-      <Link
-        href="/"
-        className="mt-7 inline-flex rounded-lg bg-red-600 px-5 py-3 font-semibold text-white hover:bg-red-700"
-      >
-        Back to Home
-      </Link>
+        <article className="prose prose-gray mt-10 max-w-none whitespace-pre-wrap">
+          {page.content}
+        </article>
+      </div>
     </main>
   );
 }

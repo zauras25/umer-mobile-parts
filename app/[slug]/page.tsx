@@ -1,9 +1,17 @@
-﻿import { notFound } from "next/navigation";
+import { notFound } from "next/navigation";
 
 import { pageRepository } from "@/lib/cms/repositories/page-repository";
 
-export default async function SupportPage() {
-  const page = await pageRepository.getBySlug("/support");
+type Props = {
+  params: Promise<{
+    slug: string;
+  }>;
+};
+
+export default async function CmsPage({ params }: Props) {
+  const { slug } = await params;
+
+  const page = await pageRepository.getBySlug(`/${slug}`);
 
   if (!page || page.status !== "published") {
     notFound();

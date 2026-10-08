@@ -1,4 +1,4 @@
-﻿// use prisma-8
+// use prisma-8
 
 enum ProductStatus {
   draft

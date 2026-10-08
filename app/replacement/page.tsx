@@ -1,3 +1,43 @@
-﻿export default function ReplacementPage() {
-  return <div className="container-site py-16"><h1 className="text-3xl font-bold">Replacement</h1></div>;
+import { notFound } from "next/navigation";
+import Link from "next/link";
+
+import { pageRepository } from "@/lib/cms/repositories/page-repository";
+
+export default async function ReplacementPage() {
+  const page = await pageRepository.getBySlug("/replacement");
+
+  if (!page || page.status !== "published") {
+    notFound();
+  }
+
+  return (
+    <main className="container-site py-16">
+      <div className="max-w-4xl">
+        <p className="text-sm font-semibold uppercase tracking-wider text-red-600">
+          Umar Mobile Parts
+        </p>
+
+        <h1 className="mt-3 text-3xl font-bold text-gray-950 sm:text-4xl">
+          {page.title}
+        </h1>
+
+        {page.excerpt && (
+          <p className="mt-4 text-lg leading-8 text-gray-600">
+            {page.excerpt}
+          </p>
+        )}
+
+        <article className="prose prose-gray mt-10 max-w-none whitespace-pre-wrap">
+          {page.content}
+        </article>
+
+        <Link
+          href="/"
+          className="mt-10 inline-flex rounded-lg bg-red-600 px-5 py-3 font-semibold text-white hover:bg-red-700"
+        >
+          Back to Home
+        </Link>
+      </div>
+    </main>
+  );
 }

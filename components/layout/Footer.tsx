@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 
 import { SITE_CONFIG } from "@/lib/constants/site";
 
@@ -62,3 +62,4 @@ export function Footer() {
     </footer>
   );
 }
+

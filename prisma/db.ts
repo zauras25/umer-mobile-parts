@@ -1,10 +1,10 @@
-﻿/**
- * Database adapter placeholder.
- *
- * The current Prisma 8 contract generator is failing before the
- * contract files can be generated. CMS functionality currently uses
- * the repository layer, so the database adapter is intentionally
- * isolated until the Prisma contract is fixed.
- */
+import "dotenv/config";
+import postgres from "@prisma/orm-postgres/runtime";
 
-export const db = null;
+import type { Contract } from "@/prisma/schema.d";
+import contractJson from "@/prisma/schema.json" with { type: "json" };
+
+export const db = postgres<Contract>({
+  contractJson,
+  url: process.env["DATABASE_URL"]!,
+});

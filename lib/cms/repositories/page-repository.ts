@@ -1,4 +1,4 @@
-﻿import { db } from "@/prisma/db";
+import { db } from "@/prisma/db";
 import type { CmsPage } from "@/lib/cms/models/types";
 
 type PageRow =
@@ -99,9 +99,7 @@ export class PageRepository {
     }
 
     const page = await (db.orm.public.CmsPage as any).update(
-      {
-        id,
-      },
+      { id },
       {
         ...data,
         excerpt:
@@ -140,4 +138,3 @@ export class PageRepository {
 }
 
 export const pageRepository = new PageRepository();
-

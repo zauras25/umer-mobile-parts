@@ -1,115 +1,191 @@
-﻿import type { CmsCategory } from "@/lib/cms/models/types";
-import { cmsCategories } from "@/lib/cms/data/store";
+import { db } from "@/prisma/db";
+import type { CmsCategory } from "@/lib/cms/models/types";
+
+type CategoryRow =
+  Awaited<ReturnType<typeof db.orm.public.Category.all>>[number];
+
+function toCategory(category: CategoryRow): CmsCategory {
+  return {
+    id: String(category.id),
+    name: category.name,
+    slug: category.slug,
+    description: category.description ?? "",
+    parentId:
+      category.parentId === null
+        ? null
+        : String(category.parentId),
+    sortOrder: category.sortOrder,
+    status: category.status,
+    createdAt: category.createdAt,
+    updatedAt: category.updatedAt,
+  };
+}
 
 export type CategoryInput = {
   name: string;
   slug: string;
-  description: string;
-  parentId: string | null;
-  sortOrder: number;
-  status: "active" | "inactive";
+  description?: string;
+  parentId?: string | null;
+  sortOrder?: number;
+  status?: "active" | "inactive";
 };
 
 export class CategoryRepository {
   async getAll(): Promise<CmsCategory[]> {
-    return [...cmsCategories].sort(
-      (a, b) => a.sortOrder - b.sortOrder,
-    );
+    const categories = await db.orm.public.Category.all();
+
+    return categories
+      .map(toCategory)
+      .sort((a, b) => a.sortOrder - b.sortOrder);
   }
 
-  async getById(
-    id: string,
-  ): Promise<CmsCategory | null> {
-    return (
-      cmsCategories.find(
-        (category) => category.id === id,
-      ) ?? null
-    );
+  async getById(id: string): Promise<CmsCategory | null> {
+    const categoryId = Number(id);
+
+    if (!Number.isInteger(categoryId)) {
+      return null;
+    }
+
+    const category = await db.orm.public.Category.first({
+      id: categoryId,
+    });
+
+    return category ? toCategory(category) : null;
   }
 
-  async getBySlug(
-    slug: string,
-  ): Promise<CmsCategory | null> {
-    const normalizedSlug = slug.trim().toLowerCase();
+  async getBySlug(slug: string): Promise<CmsCategory | null> {
+    const category = await db.orm.public.Category.first({
+      slug: slug.trim().toLowerCase(),
+    });
 
-    return (
-      cmsCategories.find(
-        (category) =>
-          category.slug.toLowerCase() === normalizedSlug,
-      ) ?? null
-    );
+    return category ? toCategory(category) : null;
   }
 
-  async create(
-    input: CategoryInput,
-  ): Promise<CmsCategory> {
-    const now = new Date().toISOString();
+  async getActive(): Promise<CmsCategory[]> {
+    const categories = await db.orm.public.Category.where({
+      status: "active",
+    }).all();
 
-    const category: CmsCategory = {
-      id: `cat-${crypto.randomUUID()}`,
-      ...input,
-      createdAt: now,
-      updatedAt: now,
-    };
+    return categories
+      .map(toCategory)
+      .sort((a, b) => a.sortOrder - b.sortOrder);
+  }
 
-    cmsCategories.push(category);
+  async create(input: CategoryInput): Promise<CmsCategory> {
+    const category = await db.orm.public.Category.create({
+      name: input.name,
+      slug: input.slug.trim().toLowerCase(),
+      description: input.description ?? null,
+      parentId:
+        input.parentId === undefined || input.parentId === null
+          ? null
+          : Number(input.parentId),
+      sortOrder: input.sortOrder ?? 0,
+      status: input.status ?? "active",
+    });
 
-    return category;
+    return toCategory(category);
   }
 
   async update(
     id: string,
     input: CategoryInput,
-  ): Promise<CmsCategory> {
-    const category = cmsCategories.find(
-      (item) => item.id === id,
-    );
+  ): Promise<CmsCategory | null> {
+    const categoryId = Number(id);
 
-    if (!category) {
-      throw new Error("Category not found.");
+    if (!Number.isInteger(categoryId)) {
+      return null;
     }
 
-    Object.assign(category, {
-      ...input,
-      updatedAt: new Date().toISOString(),
+    const existing = await db.orm.public.Category.first({
+      id: categoryId,
     });
 
-    return category;
-  }
-
-  async delete(id: string): Promise<void> {
-    const index = cmsCategories.findIndex(
-      (category) => category.id === id,
-    );
-
-    if (index === -1) {
-      throw new Error("Category not found.");
+    if (!existing) {
+      return null;
     }
 
-    cmsCategories.splice(index, 1);
-  }
-
-  async toggleStatus(
-    id: string,
-  ): Promise<CmsCategory> {
-    const category = cmsCategories.find(
-      (item) => item.id === id,
+    const category = await (db.orm.public.Category as any).update(
+      { id: categoryId },
+      {
+        ...input,
+        slug:
+          input.slug !== undefined
+            ? input.slug.trim().toLowerCase()
+            : existing.slug,
+        description:
+          input.description !== undefined
+            ? input.description
+            : existing.description,
+        parentId:
+          input.parentId !== undefined
+            ? input.parentId === null
+              ? null
+              : Number(input.parentId)
+            : existing.parentId,
+        sortOrder:
+          input.sortOrder !== undefined
+            ? input.sortOrder
+            : existing.sortOrder,
+        status:
+          input.status !== undefined
+            ? input.status
+            : existing.status,
+      },
     );
 
-    if (!category) {
-      throw new Error("Category not found.");
+    return category ? toCategory(category) : null;
+  }
+
+  async delete(id: string): Promise<boolean> {
+    const categoryId = Number(id);
+
+    if (!Number.isInteger(categoryId)) {
+      return false;
     }
 
-    category.status =
-      category.status === "active"
-        ? "inactive"
-        : "active";
+    const existing = await db.orm.public.Category.first({
+      id: categoryId,
+    });
 
-    category.updatedAt = new Date().toISOString();
+    if (!existing) {
+      return false;
+    }
 
-    return category;
+    await (db.orm.public.Category as any).delete({
+      id: categoryId,
+    });
+
+    return true;
+  }
+
+  async toggleStatus(id: string): Promise<CmsCategory | null> {
+    const categoryId = Number(id);
+
+    if (!Number.isInteger(categoryId)) {
+      return null;
+    }
+
+    const existing = await db.orm.public.Category.first({
+      id: categoryId,
+    });
+
+    if (!existing) {
+      return null;
+    }
+
+    const category = await (db.orm.public.Category as any).update(
+      { id: categoryId },
+      {
+        status:
+          existing.status === "active"
+            ? "inactive"
+            : "active",
+      },
+    );
+
+    return category ? toCategory(category) : null;
   }
 }
 
-export const categoryRepository =
-  new CategoryRepository();
+export const categoryRepository = new CategoryRepository();

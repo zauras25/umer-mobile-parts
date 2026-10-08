@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState } from "react";
 import {
@@ -46,9 +46,18 @@ export function PageEditor({ page, onClose }: PageEditorProps) {
       };
 
       if (page) {
-        await updatePage(page.id, input);
+        const formData = new FormData();
+        formData.set("id", page.id);
+        Object.entries(input).forEach(([key, value]) =>
+          formData.set(key, String(value)),
+        );
+        await updatePage(formData);
       } else {
-        await createPage(input);
+        const formData = new FormData();
+        Object.entries(input).forEach(([key, value]) =>
+          formData.set(key, String(value)),
+        );
+        await createPage(formData);
       }
 
       window.location.reload();
@@ -244,7 +253,9 @@ export function PageActions({ page, onEdit }: PageActionsProps) {
     setLoading(true);
 
     try {
-      await deletePage(page.id);
+      const formData = new FormData();
+      formData.set("id", page.id);
+      await deletePage(formData);
       window.location.reload();
     } catch (error) {
       window.alert(
@@ -258,7 +269,9 @@ export function PageActions({ page, onEdit }: PageActionsProps) {
     setLoading(true);
 
     try {
-      await togglePageStatus(page.id);
+      const formData = new FormData();
+      formData.set("id", page.id);
+      await togglePageStatus(formData);
       window.location.reload();
     } catch (error) {
       window.alert(

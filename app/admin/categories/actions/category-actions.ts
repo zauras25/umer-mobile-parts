@@ -16,7 +16,9 @@ function validate(input: CategoryInput) {
     throw new Error("Category slug is required.");
   }
 
-  if (!Number.isInteger(input.sortOrder) || input.sortOrder < 0) {
+  const sortOrder = input.sortOrder ?? 0;
+
+  if (!Number.isInteger(sortOrder) || sortOrder < 0) {
     throw new Error(
       "Sort order must be a whole number and cannot be negative.",
     );
@@ -35,7 +37,7 @@ export async function createCategory(input: CategoryInput) {
     ...input,
     name: input.name.trim(),
     slug: input.slug.trim().toLowerCase(),
-    description: input.description.trim(),
+    description: (input.description ?? "").trim(),
     parentId: input.parentId || null,
     sortOrder: Number(input.sortOrder),
   };
@@ -66,7 +68,7 @@ export async function updateCategory(
     ...input,
     name: input.name.trim(),
     slug: input.slug.trim().toLowerCase(),
-    description: input.description.trim(),
+    description: (input.description ?? "").trim(),
     parentId: input.parentId || null,
     sortOrder: Number(input.sortOrder),
   };

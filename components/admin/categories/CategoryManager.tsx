@@ -183,6 +183,10 @@ export function CategoryManager({
           payload,
         );
 
+        if (!updated) {
+          throw new Error("Unable to update category.");
+        }
+
         setCategories((current) =>
           current.map((category) =>
             category.id === updated.id
@@ -266,6 +270,10 @@ export function CategoryManager({
     try {
       const updated =
         await toggleCategoryStatus(category.id);
+
+      if (!updated) {
+        throw new Error("Unable to update category status.");
+      }
 
       setCategories((current) =>
         current.map((item) =>

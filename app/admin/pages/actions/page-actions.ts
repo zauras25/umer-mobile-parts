@@ -2,185 +2,136 @@
 
 import { revalidatePath } from "next/cache";
 
-import type { CmsPage } from "@/lib/cms/models/types";
 import { pageRepository } from "@/lib/cms/repositories/page-repository";
 
-type PageInput = {
-  title: string;
-  slug: string;
-  excerpt: string;
-  content: string;
-  status: CmsPage["status"];
-  seoTitle: string;
-  seoDescription: string;
-};
-
-function normalizeSlug(slug: string) {
-  const value = slug.trim();
-
-  if (!value) {
-    throw new Error("Slug is required.");
-  }
-
-  return value.startsWith("/") ? value : `/${value}`;
+function value(formData: FormData, name: string): string {
+  return String(formData.get(name) ?? "").trim();
 }
 
-function validateInput(input: PageInput) {
-  const title = input.title.trim();
-  const slug = normalizeSlug(input.slug);
-  const content = input.content.trim();
-
-  if (!title) {
-    throw new Error("Page title is required.");
-  }
-
-  if (!content) {
-    throw new Error("Page content is required.");
-  }
-
-  return {
-    title,
-    slug,
-    excerpt: input.excerpt.trim(),
-    content,
-    status: input.status,
-    seoTitle: input.seoTitle.trim(),
-    seoDescription: input.seoDescription.trim(),
-  };
+function statusValue(
+  formData: FormData,
+): "draft" | "published" {
+  return value(formData, "status") === "published"
+    ? "published"
+    : "draft";
 }
 
-export async function createPage(input: PageInput) {
-  const data = validateInput(input);
+export async function createPage(formData: FormData) {
+  const title = value(formData, "title");
+  const slug = value(formData, "slug");
+  const content = value(formData, "content");
 
-  const existing = await pageRepository.getBySlug(data.slug);
-
-  if (existing) {
-    throw new Error(`A page already exists with slug "${data.slug}".`);
+  if (!title || !slug || !content) {
+    throw new Error(
+      "Title, slug and content are required.",
+    );
   }
-
-  const now = new Date().toISOString();
 
   const page = await pageRepository.create({
     id: crypto.randomUUID(),
-    ...data,
+    title,
+    slug: slug.startsWith("/") ? slug : `/${slug}`,
+    excerpt: value(formData, "excerpt"),
+    content,
+    status: statusValue(formData),
+    seoTitle: value(formData, "seoTitle"),
+    seoDescription: value(formData, "seoDescription"),
   });
 
   revalidatePath("/admin/pages");
-  revalidatePath(data.slug);
-  revalidatePath("/[slug]", "page");
+  revalidatePath(page.slug);
 
-  return {
-    success: true,
-    page,
-    now,
-  };
+  return page;
 }
 
-export async function updatePage(id: string, input: PageInput) {
-  const data = validateInput(input);
+export async function updatePage(formData: FormData) {
+  const id = value(formData, "id");
+
+  if (!id) {
+    throw new Error("Page ID is required.");
+  }
 
   const existing = await pageRepository.getById(id);
 
   if (!existing) {
-    return {
-      success: false,
-      error: "Page not found",
-    };
+    throw new Error("Page not found.");
   }
 
-  const pageWithSlug = await pageRepository.getBySlug(data.slug);
+  const oldSlug = existing.slug;
 
-  if (pageWithSlug && pageWithSlug.id !== id) {
-    throw new Error(`A page already exists with slug "${data.slug}".`);
-  }
+  const updated = await pageRepository.update(id, {
+    title: value(formData, "title"),
+    slug: value(formData, "slug").startsWith("/")
+      ? value(formData, "slug")
+      : `/${value(formData, "slug")}`,
+    excerpt: value(formData, "excerpt"),
+    content: value(formData, "content"),
+    status: statusValue(formData),
+    seoTitle: value(formData, "seoTitle"),
+    seoDescription: value(formData, "seoDescription"),
+  });
 
-  const page = await pageRepository.update(id, data);
-
-  if (!page) {
-    return {
-      success: false,
-      error: "Page not found",
-    };
+  if (!updated) {
+    throw new Error("Unable to update page.");
   }
 
   revalidatePath("/admin/pages");
-  revalidatePath(existing.slug);
-  revalidatePath(data.slug);
-  revalidatePath("/[slug]", "page");
+  revalidatePath(oldSlug);
+  revalidatePath(updated.slug);
 
-  return {
-    success: true,
-    page,
-  };
+  return updated;
 }
 
-export async function deletePage(id: string) {
+export async function deletePage(formData: FormData) {
+  const id = value(formData, "id");
+
+  if (!id) {
+    throw new Error("Page ID is required.");
+  }
+
   const existing = await pageRepository.getById(id);
 
   if (!existing) {
-    return {
-      success: false,
-      error: "Page not found",
-    };
+    throw new Error("Page not found.");
   }
 
   const deleted = await pageRepository.delete(id);
 
   if (!deleted) {
-    return {
-      success: false,
-      error: "Unable to delete page",
-    };
+    throw new Error("Unable to delete page.");
   }
 
   revalidatePath("/admin/pages");
   revalidatePath(existing.slug);
-  revalidatePath("/[slug]", "page");
-
-  return {
-    success: true,
-  };
 }
 
-export async function togglePageStatus(id: string) {
+export async function togglePageStatus(formData: FormData) {
+  const id = value(formData, "id");
+
+  if (!id) {
+    throw new Error("Page ID is required.");
+  }
+
   const existing = await pageRepository.getById(id);
 
   if (!existing) {
-    return {
-      success: false,
-      error: "Page not found",
-    };
+    throw new Error("Page not found.");
   }
 
-  const page = await pageRepository.update(id, {
-    status: existing.status === "published" ? "draft" : "published",
+  const updated = await pageRepository.update(id, {
+    status:
+      existing.status === "published"
+        ? "draft"
+        : "published",
   });
 
-  if (!page) {
-    return {
-      success: false,
-      error: "Page not found",
-    };
+  if (!updated) {
+    throw new Error("Unable to update page status.");
   }
 
   revalidatePath("/admin/pages");
   revalidatePath(existing.slug);
-  revalidatePath("/[slug]", "page");
+  revalidatePath(updated.slug);
 
-  return {
-    success: true,
-    page,
-  };
-}
-
-export async function createPageAction(input: PageInput) {
-  return createPage(input);
-}
-
-export async function updatePageAction(id: string, input: PageInput) {
-  return updatePage(id, input);
-}
-
-export async function deletePageAction(id: string) {
-  return deletePage(id);
+  return updated;
 }
